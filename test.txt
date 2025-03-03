@@ -1,0 +1,14 @@
+This is a sample text file that can be directly referenced from the sidebar.md file.
+
+It demonstrates how to link to static files in the root directory of the application.
+
+Benefits of this approach:
+1. More intuitive for users editing the sidebar.md file
+2. No need to understand Flask routes or templates
+3. Works with any browser-compatible file format (txt, html, pdf, etc.)
+4. Files can be organized in the same directory as sidebar.md
+
+Example usage in sidebar.md:
+```markdown
+- [Test File](static_files/test.txt)
+```

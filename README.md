@@ -1,16 +1,100 @@
 # Sidebar Dashboard
 
-A Flask-based dashboard with a persistent sidebar and content area, featuring Markdown-based sidebar configuration.
+A dynamic dashboard with a configurable sidebar that can be edited in real-time using markdown.
+
+## Sidebar.md - Quick Guide
+
+The sidebar is controlled by a simple markdown file (`sidebar.md`) that you can edit at any time. The dashboard will automatically refresh to show your changes.
+
+### Link Structure Rules
+
+All links in the sidebar follow these simple rules:
+
+1. **Always include file extensions** in all links:
+   - HTML files: `sample_content.html`, `matrix_view.html`
+   - Text files: `document.txt`
+   - Markdown files: `README.md`
+
+2. **Special Handling**:
+   - Markdown files (.md) are rendered as HTML with styling
+   - HTML files are served directly
+   - Text files are displayed with formatting
+   - Other file types are downloaded or displayed according to browser capabilities
+
+3. **External Links**: Use full URLs starting with http:// or https://
+   - These are automatically detected and open in a new window
+
+### Example Sidebar.md
+
+```markdown
+# Dashboard
+
+## Local Content
+
+- [Sample Content](templates/sample_content.html)
+- [Test File](test.txt)
+- [Matrix View](templates/matrix_view.html)
+- [README](README.md)
+
+## External Links
+
+- [Gmail](https://gmail.com)
+- [GitHub](https://github.com)
+```
 
 ## Features
 
-- Persistent sidebar that stays visible at all times
-- Content area that can display both local and external content
-- External websites open in a new browser window positioned to the right of the sidebar
-- Markdown-based sidebar configuration for easy authoring
-- Automatic link handling based on URL type
-- Real-time sidebar updates when the markdown file changes
-- Clean separation of concerns with external CSS and JavaScript files
+- **Dynamic Sidebar**: Automatically updates when the sidebar.md file is changed
+- **Markdown Support**: Renders markdown files as HTML
+- **URL Bar Updates**: The browser URL bar reflects the current content being viewed
+- **External Links**: Opens external links in new, positioned browser windows
+- **Error Handling**: Provides clear error messages for missing files
+
+## Setup and Installation
+
+1. Clone the repository
+2. Install the required dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+3. Run the dashboard:
+   ```
+   python app.py
+   ```
+   or use the provided shell script:
+   ```
+   ./start_dashboard.sh
+   ```
+
+## Usage
+
+1. Access the dashboard at http://localhost:8081
+2. Edit the `sidebar.md` file to customize the sidebar
+3. Click on links in the sidebar to load content in the main frame
+
+## Technical Details
+
+The dashboard is built with:
+- Flask (web framework)
+- Python-Markdown (for markdown parsing)
+- Watchdog (for file monitoring)
+- JavaScript (for dynamic content loading)
+
+## File Structure
+
+- `app.py`: Main Flask application
+- `sidebar.md`: Markdown file for sidebar content
+- `static/`: Static assets (CSS, JS)
+- `templates/`: HTML templates
+- `start_dashboard.sh`: Shell script to start the dashboard
+
+## Contributing
+
+Feel free to submit issues or pull requests to improve the dashboard.
+
+## License
+
+MIT
 
 ## Files
 

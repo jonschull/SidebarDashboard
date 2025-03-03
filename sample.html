@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample HTML File</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .note {
+            background-color: #fffde7;
+            padding: 15px;
+            border-left: 4px solid #ffd600;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sample HTML File</h1>
+        
+        <p>This is a sample HTML file that can be directly referenced from the sidebar.md file.</p>
+        
+        <div class="note">
+            <strong>Note:</strong> This file is stored in the root directory of the application and served directly by Flask.
+        </div>
+        
+        <h2>Benefits of this approach:</h2>
+        <ul>
+            <li>More intuitive for users editing the sidebar.md file</li>
+            <li>No need to understand Flask routes or templates</li>
+            <li>Works with any browser-compatible file format</li>
+            <li>Files can be organized in the same directory as sidebar.md</li>
+        </ul>
+        
+        <h2>Example usage in sidebar.md:</h2>
+        <pre><code>- [Sample HTML](static_files/sample.html)</code></pre>
+    </div>
+</body>
+</html>

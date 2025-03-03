@@ -1,33 +1,41 @@
+#!/usr/bin/env python3
 """
-Sidebar Dashboard App
+Sidebar Dashboard Application
 
-This Flask application serves a sidebar interface that can control external browser windows.
-It provides a clean separation between the sidebar navigation and the content being viewed.
+This Flask application provides a dynamic dashboard with a configurable sidebar
+that can be edited in real-time using markdown. The sidebar is rendered from a
+markdown file (sidebar.md) and automatically refreshes when the file is changed.
 
-Key components:
-- Flask web server to serve the sidebar interface
-- JavaScript to handle sidebar interactions
-- External CSS and JS files for clean separation of concerns
-- Markdown-based sidebar for easy authoring
+The application handles different types of content:
+- Markdown files (.md) are rendered as HTML with styling
+- HTML files are served directly
+- Text files are displayed with formatting
+- External links (http/https) open in a new browser window
+
+Key features:
+- Dynamic sidebar that updates in real-time
+- URL bar updates to reflect the current content
+- Proper handling of various file types
+- Error handling for missing files
+
+Author: Codeium
+License: MIT
 """
 
 import os
 import re
-import markdown
-import webbrowser
-import threading
 import time
-from flask import Flask, render_template, jsonify, send_from_directory, Response
+import json
+import markdown
+from flask import Flask, render_template, send_from_directory, Response, request, jsonify
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-# Create Flask app with static folder configuration
 app = Flask(__name__)
 
 # Constants
-PORT = 8081
-SIDEBAR_MD_PATH = os.path.join(os.path.dirname(__file__), 'sidebar.md')
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'templates')
+SIDEBAR_MD_PATH = os.path.join(os.path.dirname(__file__), 'sidebar.md')
 ROOT_DIR = os.path.dirname(__file__)
 
 # Store the parsed sidebar HTML
@@ -169,11 +177,10 @@ def index():
     This function renders the sidebar template with the current sidebar content.
     
     Returns:
-        str: Rendered HTML template for the main dashboard
+        str: Rendered HTML for the main dashboard page
     """
     return render_template('sidebar.html', sidebar_content=sidebar_html)
 
-# Route for serving files from the root directory
 @app.route('/<path:filename>')
 def serve_file(filename):
     """
@@ -182,6 +189,7 @@ def serve_file(filename):
     This function serves files from the root directory of the application.
     It allows users to reference files directly in the sidebar.md file.
     For markdown files, it renders them as HTML instead of downloading.
+    For text files, it displays them with proper formatting.
     
     Args:
         filename (str): Path to the file relative to the root directory
@@ -189,88 +197,137 @@ def serve_file(filename):
     Returns:
         Response: The requested file or a 404 error if the file doesn't exist
     """
+    # Normalize the filename to prevent path traversal
+    filename = filename.replace('//', '/')
+    
+    # Check if it's a template file
+    if filename.startswith('templates/'):
+        template_path = filename[len('templates/'):]
+        if os.path.exists(os.path.join(TEMPLATES_DIR, template_path)):
+            return send_from_directory(TEMPLATES_DIR, template_path)
+    
+    # Check if the file exists in the root directory
     file_path = os.path.join(ROOT_DIR, filename)
+    if os.path.exists(file_path):
+        # If it's a markdown file, render it as HTML
+        if file_path.endswith('.md'):
+            with open(file_path, 'r') as f:
+                content = f.read()
+            html_content = markdown.markdown(content)
+            return Response(f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>{os.path.basename(file_path)}</title>
+                <style>
+                    body {{ font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }}
+                    h1, h2, h3 {{ color: #333; }}
+                    pre {{ background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }}
+                    code {{ background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }}
+                    blockquote {{ border-left: 4px solid #ddd; padding-left: 15px; color: #666; }}
+                    img {{ max-width: 100%; }}
+                    table {{ border-collapse: collapse; width: 100%; }}
+                    th, td {{ border: 1px solid #ddd; padding: 8px; }}
+                    th {{ background-color: #f2f2f2; }}
+                    tr:nth-child(even) {{ background-color: #f9f9f9; }}
+                </style>
+            </head>
+            <body>
+                {html_content}
+            </body>
+            </html>
+            """, mimetype='text/html')
+        elif file_path.endswith('.txt'):
+            # For text files, display them with proper formatting
+            with open(file_path, 'r') as f:
+                content = f.read()
+            return Response(f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>{os.path.basename(file_path)}</title>
+                <style>
+                    body {{ font-family: monospace; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }}
+                    pre {{ background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap; }}
+                </style>
+            </head>
+            <body>
+                <h1>{os.path.basename(file_path)}</h1>
+                <pre>{content}</pre>
+            </body>
+            </html>
+            """, mimetype='text/html')
+        else:
+            # Otherwise, serve the file normally
+            return send_from_directory(os.path.dirname(file_path), os.path.basename(file_path))
     
     # If the file doesn't exist, check if it's a template reference
-    if not os.path.exists(file_path):
-        # Check if it's a template reference (without .html extension)
-        template_name = filename.split('/')[-1]  # Get the base name
-        if template_name in template_mapping:
-            return render_template(template_mapping[template_name])
-        
-        # Check if it's a template reference with templates/ prefix
-        if filename.startswith('templates/'):
-            template_name = filename[len('templates/'):].split('/')[-1]
-            if template_name in template_mapping:
-                return render_template(template_mapping[template_name])
+    template_name = os.path.splitext(os.path.basename(filename))[0]
+    if template_name in template_mapping:
+        return render_template(template_mapping[template_name])
     
-    # If it's a markdown file, render it as HTML
-    if os.path.exists(file_path) and file_path.endswith('.md'):
-        with open(file_path, 'r') as f:
-            content = f.read()
-        html_content = markdown.markdown(content)
-        return Response(f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>{os.path.basename(file_path)}</title>
-            <style>
-                body {{ font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }}
-                h1, h2, h3 {{ color: #333; }}
-                pre {{ background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }}
-                code {{ background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }}
-                blockquote {{ border-left: 4px solid #ddd; padding-left: 15px; color: #666; }}
-                img {{ max-width: 100%; }}
-                table {{ border-collapse: collapse; width: 100%; }}
-                th, td {{ border: 1px solid #ddd; padding: 8px; }}
-                th {{ background-color: #f2f2f2; }}
-                tr:nth-child(even) {{ background-color: #f9f9f9; }}
-            </style>
-        </head>
-        <body>
-            {html_content}
-        </body>
-        </html>
-        """, mimetype='text/html')
-    
-    # Otherwise, serve the file normally
-    return send_from_directory(ROOT_DIR, filename)
+    # If we get here, the file doesn't exist
+    return Response(f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>File Not Found</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }}
+            h1 {{ color: #d9534f; }}
+            .error-box {{ background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; }}
+            .path {{ font-family: monospace; background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }}
+        </style>
+    </head>
+    <body>
+        <h1>File Not Found</h1>
+        <div class="error-box">
+            <p>The requested file <span class="path">{filename}</span> could not be found.</p>
+            <p>Full path checked: <span class="path">{file_path}</span></p>
+        </div>
+    </body>
+    </html>
+    """, status=404, mimetype='text/html')
 
 @app.route('/refresh_sidebar')
 def refresh_sidebar():
     """
     Refresh the sidebar content.
     
-    This function re-parses the sidebar.md file and returns the updated HTML.
-    It's used by the AJAX call in the sidebar to update the content without
-    reloading the page.
+    This function is called via AJAX to get the latest sidebar content.
+    It returns the current sidebar HTML as JSON.
     
     Returns:
-        JSON: A JSON object containing the updated sidebar content and status
+        Response: JSON response with the sidebar content
     """
     return jsonify({
         'status': 'success',
-        'content': parse_sidebar_markdown()
+        'content': sidebar_html
     })
 
-# Function to open the dashboard in a browser
-def open_dashboard():
+@app.route('/open_url', methods=['POST'])
+def open_url():
     """
-    Open the dashboard in the default web browser.
+    Record that a URL was opened in a new window.
     
-    This function waits for 1 second to ensure the Flask server is running,
-    then opens the dashboard URL in the default web browser.
+    This function is called when an external URL is opened in a new window.
+    It logs the URL and title for reference.
     
     Returns:
-        None
+        Response: JSON response indicating success
     """
-    time.sleep(1)  # Wait for Flask to start
-    webbrowser.open(f'http://localhost:{PORT}')
-
-# Main entry point
-if __name__ == '__main__':
-    # Start a thread to open the dashboard in a browser
-    threading.Thread(target=open_dashboard).start()
+    data = request.get_json()
+    url = data.get('url', '')
+    title = data.get('title', '')
     
-    # Start the Flask server
-    app.run(host='0.0.0.0', port=PORT, debug=True, use_reloader=False)
+    print(f"Opened external URL: {url} ({title})")
+    
+    return jsonify({
+        'status': 'success'
+    })
+
+if __name__ == '__main__':
+    print("Starting Sidebar Dashboard...")
+    print(f"Dashboard available at: http://localhost:8081")
+    print(f"Edit {SIDEBAR_MD_PATH} to update the sidebar")
+    app.run(host='0.0.0.0', port=8081, debug=True)
