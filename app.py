@@ -7,10 +7,10 @@ It provides a clean separation between the sidebar navigation and the content be
 Key components:
 - Flask web server to serve the sidebar interface
 - JavaScript to handle sidebar interactions
-- Python's webbrowser module to open and position external windows
+- External CSS and JS files for clean separation of concerns
 """
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 import webbrowser
 import os
 import sys
@@ -19,7 +19,8 @@ import threading
 import time
 from urllib.parse import quote
 
-app = Flask(__name__)
+# Create Flask app with static folder configuration
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 # Store information about the currently open window
 current_window = {

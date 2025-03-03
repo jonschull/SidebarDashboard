@@ -4,138 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sidebar Dashboard</title>
-    <style>
-        /* Reset and base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body, html {
-            height: 100%;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-        
-        /* Main container */
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-        
-        /* Sidebar styles */
-        .sidebar {
-            width: 250px;
-            background-color: #f5f5f5;
-            border-right: 1px solid #ddd;
-            padding: 15px;
-            overflow-y: auto;
-            height: 100%;
-        }
-        
-        .sidebar-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #0066cc;
-        }
-        
-        .nav-item {
-            display: block;
-            padding: 8px 10px;
-            color: #0066cc;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-bottom: 5px;
-            cursor: pointer;
-        }
-        
-        .nav-item:hover {
-            background-color: #e9e9e9;
-        }
-        
-        .nav-item.active {
-            background-color: #0066cc;
-            color: white;
-        }
-        
-        .nav-item.external-active {
-            background-color: #4CAF50;
-            color: white;
-        }
-        
-        .external-link::after {
-            content: " ↗";
-            font-size: 0.8em;
-        }
-        
-        hr {
-            border: 0;
-            border-top: 1px solid #ddd;
-            margin: 10px 0;
-        }
-        
-        /* Content area styles */
-        .content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .content iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        /* Status indicator */
-        .status-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 250px;
-            background-color: #f0f0f0;
-            padding: 5px 15px;
-            border-top: 1px solid #ddd;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        /* Loading indicator */
-        .loading {
-            display: none;
-            margin-top: 10px;
-            color: #666;
-        }
-        
-        /* Message styles */
-        .message {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-        
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .message.info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <div class="container">
@@ -144,15 +13,15 @@
             <div class="sidebar-title">Dashboard</div>
             
             <!-- Local content links -->
-            <div class="nav-item active" data-type="local" data-url="/local_content/sample">Sample Content</div>
-            <div class="nav-item" data-type="local" data-url="/local_content/matrix">Matrix View</div>
+            <a href="/local_content/sample" class="active">Sample Content</a>
+            <a href="/local_content/matrix">Matrix View</a>
             
             <hr>
             
             <!-- External links -->
-            <div class="nav-item external-link" data-type="external" data-url="https://gmail.com">Gmail</div>
-            <div class="nav-item external-link" data-type="external" data-url="https://airtable.com">Airtable</div>
-            <div class="nav-item external-link" data-type="external" data-url="https://groups.google.com">Google Groups</div>
+            <a href="https://gmail.com" data-external="true">Gmail</a>
+            <a href="https://airtable.com" data-external="true">Airtable</a>
+            <a href="https://groups.google.com" data-external="true">Google Groups</a>
             
             <div class="loading">Opening external window...</div>
             
@@ -165,122 +34,7 @@
         </div>
     </div>
     
-    <script>
-        /**
-         * Sidebar Dashboard JavaScript
-         * 
-         * This script handles the sidebar interactions and controls external browser windows.
-         */
-        
-        // DOM elements
-        const navItems = document.querySelectorAll('.nav-item');
-        const contentFrame = document.getElementById('content-frame');
-        const statusBar = document.getElementById('status-bar');
-        const loadingIndicator = document.querySelector('.loading');
-        
-        /**
-         * Set the active navigation item
-         * 
-         * @param {HTMLElement} element - The element to set as active
-         */
-        function setActive(element) {
-            // Remove active class from all items
-            navItems.forEach(item => {
-                item.classList.remove('active');
-                item.classList.remove('external-active');
-            });
-            
-            // Add appropriate active class
-            if (element.dataset.type === 'external') {
-                element.classList.add('external-active');
-            } else {
-                element.classList.add('active');
-            }
-        }
-        
-        /**
-         * Load local content in the iframe
-         * 
-         * @param {string} url - The URL to load
-         * @param {HTMLElement} element - The navigation item that was clicked
-         */
-        function loadLocalContent(url, element) {
-            contentFrame.src = url;
-            setActive(element);
-            statusBar.textContent = 'Loaded: ' + element.textContent;
-        }
-        
-        /**
-         * Open an external URL in a positioned browser window
-         * 
-         * @param {string} url - The URL to open
-         * @param {HTMLElement} element - The navigation item that was clicked
-         */
-        function openExternalContent(url, element) {
-            setActive(element);
-            statusBar.textContent = 'Opening: ' + element.textContent;
-            loadingIndicator.style.display = 'block';
-            
-            // Calculate window position and size
-            const screenWidth = window.screen.width;
-            const screenHeight = window.screen.height;
-            const sidebarWidth = 250; // Width of the sidebar
-            const windowWidth = screenWidth - sidebarWidth - 50; // Leave some margin
-            const windowHeight = screenHeight - 100; // Leave some margin
-            const windowLeft = sidebarWidth + 50; // Position to the right of sidebar
-            const windowTop = 50; // Position from top
-            
-            // Open a new window with specific position and size
-            const newWindow = window.open(
-                url, 
-                element.textContent,
-                `width=${windowWidth},height=${windowHeight},left=${windowLeft},top=${windowTop},menubar=yes,toolbar=yes,location=yes,status=yes,resizable=yes`
-            );
-            
-            if (newWindow) {
-                // Window opened successfully
-                statusBar.textContent = 'Opened: ' + element.textContent;
-                
-                // Also send request to server to update current window info
-                fetch('/open_url', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        url: url,
-                        title: element.textContent
-                    })
-                })
-                .then(response => response.json())
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            } else {
-                // Window could not be opened (likely blocked by popup blocker)
-                statusBar.textContent = 'Error: Popup blocked. Please allow popups for this site.';
-            }
-            
-            loadingIndicator.style.display = 'none';
-            return false; // Prevent default link behavior
-        }
-        
-        // Add click handlers to navigation items
-        navItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const url = this.dataset.url;
-                const type = this.dataset.type;
-                
-                if (type === 'local') {
-                    loadLocalContent(url, this);
-                } else if (type === 'external') {
-                    openExternalContent(url, this);
-                }
-            });
-        });
-        
-        // Initialize with the first item active
-        document.querySelector('.nav-item.active').click();
-    </script>
+    <!-- Include the external JavaScript file -->
+    <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
 </body>
 </html>
