@@ -38,7 +38,8 @@ A Flask-based dashboard with a persistent sidebar and content area, featuring Ma
    - Use standard Markdown syntax
    - Links starting with http:// or https:// are automatically detected as external
    - External links will open in a new browser window
-   - Local links will load in the content frame
+   - All local links should include the file extension (e.g., `sample.html`, `test.txt`, `matrix_view.html`)
+   - Markdown files (.md) will be rendered as HTML
 
 ## Sidebar Markdown Format
 
@@ -46,12 +47,60 @@ A Flask-based dashboard with a persistent sidebar and content area, featuring Ma
 # Dashboard Title
 
 ## Section Title
-- [Local Link](/local_content/page)
+- [Local HTML File](sample.html)
+- [Local Text File](test.txt)
+- [Template HTML](matrix_view.html)
+- [Markdown File](README.md)
 - [External Link](https://example.com)
 
 ## Another Section
-- [Another Local Link](/local_content/another)
+- [Another HTML](calculator.html)
 ```
+
+## Link Rules
+
+The sidebar dashboard uses simple, intuitive rules for hyperlinks:
+
+1. **File Links**: Always include the file extension
+   ```markdown
+   - [Sample HTML](sample.html)
+   - [Text File](document.txt)
+   - [PDF Document](report.pdf)
+   - [Markdown File](README.md)
+   ```
+
+2. **HTML Templates**: Reference with .html extension
+   ```markdown
+   - [Matrix View](matrix_view.html)
+   - [Calculator](calculator.html)
+   ```
+
+3. **External Links**: Use full URLs (automatically detected)
+   ```markdown
+   - [Google](https://google.com)
+   - [GitHub](https://github.com)
+   ```
+
+4. **Special Handling**:
+   - Markdown files (.md) are rendered as HTML with styling
+   - HTML files are served directly
+   - Other file types are downloaded or displayed according to browser capabilities
+
+## File Organization
+
+The dashboard supports two types of content:
+
+1. **Files in Root Directory**: Any files placed in the root directory can be referenced directly:
+   ```markdown
+   - [Text File](document.txt)
+   - [README](README.md)
+   ```
+
+2. **HTML Templates**: HTML files in the `templates` directory can be referenced directly:
+   ```markdown
+   - [Matrix View](matrix_view.html)
+   - [Calculator](calculator.html)
+   ```
 
 ## Running the Dashboard
 

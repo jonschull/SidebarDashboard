@@ -135,9 +135,14 @@ document.addEventListener('DOMContentLoaded', function() {
      * Refresh the sidebar content
      * 
      * This function fetches the latest sidebar content from the server
-     * and updates the sidebar HTML.
+     * and updates the sidebar HTML while preserving the currently active link.
      */
     function refreshSidebar() {
+        // Store the currently active link URL and whether it's external
+        let activeLink = sidebar.querySelector('a.active') || sidebar.querySelector('a.external-active');
+        let activeUrl = activeLink ? activeLink.getAttribute('href') : null;
+        let isActiveExternal = activeLink ? activeLink.dataset.external === "true" : false;
+        
         fetch('/refresh_sidebar')
             .then(response => response.json())
             .then(data => {
@@ -156,15 +161,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     sidebarContent.appendChild(loadingElement);
                     sidebarContent.appendChild(statusBarElement);
                     
-                    // Set the first link as active if none are active
-                    const activeLink = sidebarContent.querySelector('a.active');
-                    if (!activeLink) {
-                        const firstLink = sidebarContent.querySelector('a');
-                        if (firstLink) {
-                            firstLink.classList.add('active');
-                            if (firstLink.dataset.external !== "true") {
+                    // Restore the active link if it exists in the new content
+                    if (activeUrl) {
+                        const newLinks = sidebarContent.querySelectorAll('a');
+                        let foundActiveLink = false;
+                        
+                        newLinks.forEach(link => {
+                            if (link.getAttribute('href') === activeUrl) {
+                                foundActiveLink = true;
+                                if (isActiveExternal) {
+                                    link.classList.add('external-active');
+                                } else {
+                                    link.classList.add('active');
+                                }
+                            }
+                        });
+                        
+                        // If we didn't find the active link, don't change the content frame
+                        if (!foundActiveLink && !isActiveExternal) {
+                            // Only set the first link as active if we couldn't find the previously active link
+                            const firstLink = sidebarContent.querySelector('a:not([data-external="true"])');
+                            if (firstLink) {
+                                firstLink.classList.add('active');
                                 contentFrame.src = firstLink.getAttribute('href');
                             }
+                        }
+                    } else {
+                        // Set the first link as active if none were active before
+                        const firstLink = sidebarContent.querySelector('a:not([data-external="true"])');
+                        if (firstLink) {
+                            firstLink.classList.add('active');
+                            contentFrame.src = firstLink.getAttribute('href');
                         }
                     }
                 }

@@ -2,8 +2,11 @@
 
 ## Local Content
 
-- [Sample Content](/local_content/sample) !!!
-- [Matrix View](/local_content/matrix)
+- [Sample Content](templates/sample_content.html)
+- [Test File](test.txt)
+- [Matrix View](templates/matrix_view.html)
+- [README.md](README.md)
+- [bad link](badlink.html)...
 
 ## External Links
 
@@ -14,11 +17,13 @@
 
 ## Tools
 
-- [Calculator](/local_content/calculator)
-- [Notes](/local_content/notes)
+- [Calculator](calculator.html)
+- [Notes](notes.html)
 
 <!-- 
 Notes:
 - Links with http:// or https:// are automatically detected as external and will open in a new window
-- Local links will load in the content frame
+- Local file links should include the file extension (e.g., sample.html, test.txt)
+- Markdown files (.md) will be rendered as HTML
+- HTML files in the templates directory can be referenced directly (e.g., matrix_view.html)
 -->
