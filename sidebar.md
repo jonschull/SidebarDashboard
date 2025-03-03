@@ -5,10 +5,10 @@
 - [Matrix View](/local_content/matrix)
 
 ## External Links
-- [Gmail](https://gmail.com){: .external}
-- [Airtable](https://airtable.com){: .external}
-- [Google Groups](https://groups.google.com){: .external}
-- [GitHub](https://github.com){: .external}
+- [Gmail](https://gmail.com)
+- [Airtable](https://airtable.com)
+- [Google Groups](https://groups.google.com)
+- [GitHub](https://github.com)
 
 ## Tools
 - [Calculator](/local_content/calculator)
@@ -16,6 +16,6 @@
 
 <!-- 
 Notes:
-- Links with {: .external} are external and will open in a new window
+- Links with http:// or https:// are automatically detected as external and will open in a new window
 - Local links will load in the content frame
 -->

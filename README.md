@@ -36,9 +36,9 @@ A Flask-based dashboard with a persistent sidebar and content area, featuring Ma
 
 3. Edit the `sidebar.md` file to customize your sidebar:
    - Use standard Markdown syntax
-   - Add `{: .external}` after external links to mark them as external
-   - Local links will load in the content frame
+   - Links starting with http:// or https:// are automatically detected as external
    - External links will open in a new browser window
+   - Local links will load in the content frame
 
 ## Sidebar Markdown Format
 
@@ -47,7 +47,7 @@ A Flask-based dashboard with a persistent sidebar and content area, featuring Ma
 
 ## Section Title
 - [Local Link](/local_content/page)
-- [External Link](https://example.com){: .external}
+- [External Link](https://example.com)
 
 ## Another Section
 - [Another Local Link](/local_content/another)

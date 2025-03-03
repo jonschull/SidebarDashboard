@@ -48,6 +48,8 @@ def parse_sidebar_markdown():
     
     This function reads the sidebar.md file, converts it to HTML,
     and applies the necessary classes and data attributes for the sidebar.
+    It automatically detects external links based on URL protocol (http/https)
+    and applies the appropriate attributes.
     
     Returns:
         str: HTML content for the sidebar
@@ -59,10 +61,6 @@ def parse_sidebar_markdown():
     
     with open(SIDEBAR_MD_PATH, 'r') as f:
         md_content = f.read()
-    
-    # Pre-process the markdown to handle our custom external link syntax
-    # Replace {: .external} with a marker we can find after conversion
-    md_content = re.sub(r'\{\:\s*\.external\s*\}', '<!-- EXTERNAL_LINK -->', md_content)
     
     # Convert markdown to HTML
     html = markdown.markdown(md_content)
@@ -83,17 +81,10 @@ def parse_sidebar_markdown():
             section = re.sub(r'^<hr>\n', '', section)
         processed_html += section
     
-    # 3. Process external links (marked with <!-- EXTERNAL_LINK -->)
-    processed_html = re.sub(
-        r'<a href="([^"]+)">(.*?)</a>\s*<!--\s*EXTERNAL_LINK\s*-->',
-        r'<a href="\1" data-external="true" class="external-link">\2</a>',
-        processed_html
-    )
+    # 3. Process all links, automatically detecting external ones based on URL
+    links = re.findall(r'<li><a href="([^"]+)">(.*?)</a></li>', processed_html)
     
-    # 4. Process remaining links as internal or external based on URL
-    remaining_links = re.findall(r'<li><a href="([^"]+)">(.*?)</a></li>', processed_html)
-    
-    for url, text in remaining_links:
+    for url, text in links:
         # Check if this is an external URL (starts with http or https)
         is_external = url.startswith(('http://', 'https://'))
         
