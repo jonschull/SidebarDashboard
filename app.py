@@ -200,94 +200,76 @@ def serve_file(filename):
     # Normalize the filename to prevent path traversal
     filename = filename.replace('//', '/')
     
-    # Check if it's a template file
-    if filename.startswith('templates/'):
-        template_path = filename[len('templates/'):]
-        if os.path.exists(os.path.join(TEMPLATES_DIR, template_path)):
-            return send_from_directory(TEMPLATES_DIR, template_path)
-    
     # Check if the file exists in the root directory
     file_path = os.path.join(ROOT_DIR, filename)
-    if os.path.exists(file_path):
-        # If it's a markdown file, render it as HTML
-        if file_path.endswith('.md'):
-            with open(file_path, 'r') as f:
-                content = f.read()
-            html_content = markdown.markdown(content)
-            return Response(f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>{os.path.basename(file_path)}</title>
-                <style>
-                    body {{ font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }}
-                    h1, h2, h3 {{ color: #333; }}
-                    pre {{ background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }}
-                    code {{ background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }}
-                    blockquote {{ border-left: 4px solid #ddd; padding-left: 15px; color: #666; }}
-                    img {{ max-width: 100%; }}
-                    table {{ border-collapse: collapse; width: 100%; }}
-                    th, td {{ border: 1px solid #ddd; padding: 8px; }}
-                    th {{ background-color: #f2f2f2; }}
-                    tr:nth-child(even) {{ background-color: #f9f9f9; }}
-                </style>
-            </head>
-            <body>
-                {html_content}
-            </body>
-            </html>
-            """, mimetype='text/html')
-        elif file_path.endswith('.txt'):
-            # For text files, display them with proper formatting
-            with open(file_path, 'r') as f:
-                content = f.read()
-            return Response(f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>{os.path.basename(file_path)}</title>
-                <style>
-                    body {{ font-family: monospace; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }}
-                    pre {{ background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap; }}
-                </style>
-            </head>
-            <body>
-                <h1>{os.path.basename(file_path)}</h1>
-                <pre>{content}</pre>
-            </body>
-            </html>
-            """, mimetype='text/html')
-        else:
-            # Otherwise, serve the file normally
-            return send_from_directory(os.path.dirname(file_path), os.path.basename(file_path))
     
-    # If the file doesn't exist, check if it's a template reference
-    template_name = os.path.splitext(os.path.basename(filename))[0]
-    if template_name in template_mapping:
-        return render_template(template_mapping[template_name])
+    if not os.path.exists(file_path):
+        return f"File not found: {filename}<br>Checked path:<br>- {file_path}", 404
     
-    # If we get here, the file doesn't exist
-    return Response(f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>File Not Found</title>
-        <style>
-            body {{ font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }}
-            h1 {{ color: #d9534f; }}
-            .error-box {{ background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; }}
-            .path {{ font-family: monospace; background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }}
-        </style>
-    </head>
-    <body>
-        <h1>File Not Found</h1>
-        <div class="error-box">
-            <p>The requested file <span class="path">{filename}</span> could not be found.</p>
-            <p>Full path checked: <span class="path">{file_path}</span></p>
-        </div>
-    </body>
-    </html>
-    """, status=404, mimetype='text/html')
+    # Handle different file types
+    if filename.endswith('.md'):
+        # For markdown files, render them as HTML
+        with open(file_path, 'r') as f:
+            md_content = f.read()
+        html_content = markdown.markdown(md_content)
+        
+        # Wrap the HTML content in a basic template
+        styled_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>{os.path.basename(filename)}</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }}
+                h1 {{ color: #333; }}
+                h2 {{ color: #444; border-bottom: 1px solid #eee; padding-bottom: 5px; }}
+                code {{ background: #f4f4f4; padding: 2px 5px; border-radius: 3px; }}
+                pre {{ background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }}
+                a {{ color: #0366d6; text-decoration: none; }}
+                a:hover {{ text-decoration: underline; }}
+                blockquote {{ border-left: 4px solid #ddd; padding-left: 15px; color: #666; }}
+                img {{ max-width: 100%; }}
+                table {{ border-collapse: collapse; width: 100%; }}
+                th, td {{ border: 1px solid #ddd; padding: 8px; }}
+                tr:nth-child(even) {{ background-color: #f2f2f2; }}
+            </style>
+        </head>
+        <body>
+            {html_content}
+        </body>
+        </html>
+        """
+        return styled_html
+    elif filename.endswith('.txt'):
+        # For text files, display with formatting
+        with open(file_path, 'r') as f:
+            text_content = f.read()
+        
+        # Escape HTML characters and preserve whitespace
+        import html
+        escaped_content = html.escape(text_content)
+        
+        # Wrap in a pre tag for formatting
+        styled_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>{os.path.basename(filename)}</title>
+            <style>
+                body {{ font-family: monospace; padding: 20px; }}
+                pre {{ background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap; }}
+            </style>
+        </head>
+        <body>
+            <pre>{escaped_content}</pre>
+        </body>
+        </html>
+        """
+        return styled_html
+    else:
+        # For all other file types, let the browser handle them
+        # Use the directory of the file and the basename to ensure proper serving
+        return send_from_directory(os.path.dirname(file_path), os.path.basename(file_path))
 
 @app.route('/refresh_sidebar')
 def refresh_sidebar():

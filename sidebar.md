@@ -7,6 +7,7 @@
 - [Matrix View](templates/matrix_view.html)
 - [README.md](README.md)
 - [bad link](badlink.html)...
+- [myfiles/myfile.txt]( myfiles/myfile.txt)
 
 ## External Links
 
