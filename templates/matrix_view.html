@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix View</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #fff;
+        }
+        
+        h1 {
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .matrix-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Matrix View</h1>
+    
+    <div class="matrix-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Recipient</th>
+                    <th>Jan 2025</th>
+                    <th>Feb 2025</th>
+                    <th>Mar 2025</th>
+                    <th>Apr 2025</th>
+                    <th>May 2025</th>
+                    <th>Jun 2025</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>example@gmail.com</td>
+                    <td>3</td>
+                    <td>5</td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>4</td>
+                </tr>
+                <tr>
+                    <td>user@example.com</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>7</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>contact@domain.org</td>
+                    <td>0</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>5</td>
+                    <td>0</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td>info@company.com</td>
+                    <td>4</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>2</td>
+                    <td>6</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td>support@service.net</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>2</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
