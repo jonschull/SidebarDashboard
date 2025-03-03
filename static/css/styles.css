@@ -43,6 +43,23 @@ body, html {
     border-bottom: 2px solid #0066cc;
 }
 
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+    margin: 10px 0;
+}
+
+/* Markdown-generated content styles */
+.sidebar ul {
+    list-style-type: none;
+    margin-left: 5px;
+}
+
+.sidebar li {
+    margin-bottom: 5px;
+}
+
 .sidebar a {
     display: block;
     padding: 8px 10px;

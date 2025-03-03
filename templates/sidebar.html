@@ -10,18 +10,7 @@
     <div class="container">
         <!-- Sidebar navigation -->
         <div class="sidebar">
-            <div class="sidebar-title">Dashboard</div>
-            
-            <!-- Local content links -->
-            <a href="/local_content/sample" class="active">Sample Content</a>
-            <a href="/local_content/matrix">Matrix View</a>
-            
-            <hr>
-            
-            <!-- External links -->
-            <a href="https://gmail.com" data-external="true">Gmail</a>
-            <a href="https://airtable.com" data-external="true">Airtable</a>
-            <a href="https://groups.google.com" data-external="true">Google Groups</a>
+            {{ sidebar_content|safe }}
             
             <div class="loading">Opening external window...</div>
             

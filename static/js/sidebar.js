@@ -2,79 +2,17 @@
  * Sidebar Dashboard JavaScript
  * 
  * This script handles the sidebar interactions and controls external browser windows.
- * It automatically applies event handlers to links based on their attributes.
+ * It automatically processes links in the sidebar, applying the appropriate behavior
+ * based on whether they are local or external links.
  */
 
-// Initialize the sidebar when the DOM is fully loaded
+// Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    initializeSidebar();
-});
-
-/**
- * Initialize the sidebar functionality
- */
-function initializeSidebar() {
     // DOM elements
+    const sidebar = document.querySelector('.sidebar');
     const contentFrame = document.getElementById('content-frame');
     const statusBar = document.getElementById('status-bar');
     const loadingIndicator = document.querySelector('.loading');
-    
-    // Get all links in the sidebar
-    const sidebarLinks = document.querySelectorAll('.sidebar a');
-    
-    // Process each link
-    sidebarLinks.forEach(link => {
-        // Determine if this is an external link based on href or data attribute
-        const isExternal = link.hasAttribute('data-external') ? 
-            (link.getAttribute('data-external') === 'true') : 
-            isExternalUrl(link.href);
-        
-        // Set the data-external attribute if not already set
-        if (!link.hasAttribute('data-external')) {
-            link.setAttribute('data-external', isExternal.toString());
-        }
-        
-        // Add click event handler
-        link.addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent default link behavior
-            
-            const url = this.href;
-            
-            if (isExternal || this.getAttribute('data-external') === 'true') {
-                openExternalContent(url, this);
-            } else {
-                loadLocalContent(url, this);
-            }
-        });
-    });
-    
-    // Set the first link as active by default
-    if (sidebarLinks.length > 0) {
-        const firstLink = sidebarLinks[0];
-        const isFirstExternal = firstLink.getAttribute('data-external') === 'true';
-        
-        if (isFirstExternal) {
-            openExternalContent(firstLink.href, firstLink);
-        } else {
-            loadLocalContent(firstLink.href, firstLink);
-        }
-    }
-    
-    /**
-     * Check if a URL is external
-     * 
-     * @param {string} url - The URL to check
-     * @returns {boolean} - True if the URL is external, false otherwise
-     */
-    function isExternalUrl(url) {
-        // Create an anchor element to parse the URL
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        
-        // Compare the URL's hostname with the current hostname
-        return anchor.hostname !== window.location.hostname && 
-               anchor.hostname !== '';
-    }
     
     /**
      * Set the active navigation item
@@ -82,14 +20,15 @@ function initializeSidebar() {
      * @param {HTMLElement} element - The element to set as active
      */
     function setActive(element) {
-        // Remove active class from all links
-        sidebarLinks.forEach(link => {
+        // Remove active class from all items
+        const allLinks = sidebar.querySelectorAll('a');
+        allLinks.forEach(link => {
             link.classList.remove('active');
             link.classList.remove('external-active');
         });
         
         // Add appropriate active class
-        if (element.getAttribute('data-external') === 'true') {
+        if (element.dataset.external === "true") {
             element.classList.add('external-active');
         } else {
             element.classList.add('active');
@@ -160,5 +99,95 @@ function initializeSidebar() {
         }
         
         loadingIndicator.style.display = 'none';
+        return false; // Prevent default link behavior
     }
-}
+    
+    /**
+     * Handle link clicks in the sidebar
+     * 
+     * This function is called when any link in the sidebar is clicked.
+     * It determines whether the link is local or external and calls
+     * the appropriate function to handle it.
+     * 
+     * @param {Event} event - The click event
+     */
+    function handleLinkClick(event) {
+        // Check if the clicked element is a link
+        if (event.target.tagName === 'A') {
+            event.preventDefault();
+            
+            const link = event.target;
+            const url = link.getAttribute('href');
+            const isExternal = link.dataset.external === "true";
+            
+            if (isExternal) {
+                openExternalContent(url, link);
+            } else {
+                loadLocalContent(url, link);
+            }
+        }
+    }
+    
+    // Add click event listener to the sidebar
+    sidebar.addEventListener('click', handleLinkClick);
+    
+    /**
+     * Refresh the sidebar content
+     * 
+     * This function fetches the latest sidebar content from the server
+     * and updates the sidebar HTML.
+     */
+    function refreshSidebar() {
+        fetch('/refresh_sidebar')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update the sidebar content
+                    const sidebarContent = document.querySelector('.sidebar');
+                    
+                    // Preserve the loading and status bar elements
+                    const loadingElement = sidebarContent.querySelector('.loading');
+                    const statusBarElement = sidebarContent.querySelector('.status-bar');
+                    
+                    // Replace the content
+                    sidebarContent.innerHTML = data.content;
+                    
+                    // Add back the loading and status bar elements
+                    sidebarContent.appendChild(loadingElement);
+                    sidebarContent.appendChild(statusBarElement);
+                    
+                    // Set the first link as active if none are active
+                    const activeLink = sidebarContent.querySelector('a.active');
+                    if (!activeLink) {
+                        const firstLink = sidebarContent.querySelector('a');
+                        if (firstLink) {
+                            firstLink.classList.add('active');
+                            if (firstLink.dataset.external !== "true") {
+                                contentFrame.src = firstLink.getAttribute('href');
+                            }
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing sidebar:', error);
+            });
+    }
+    
+    // Set an interval to refresh the sidebar content (every 5 seconds)
+    setInterval(refreshSidebar, 5000);
+    
+    // Initialize with the first link active
+    const firstLink = sidebar.querySelector('a');
+    if (firstLink) {
+        if (firstLink.dataset.external !== "true") {
+            loadLocalContent(firstLink.getAttribute('href'), firstLink);
+        } else {
+            // If the first link is external, find the first non-external link
+            const firstLocalLink = sidebar.querySelector('a:not([data-external="true"])');
+            if (firstLocalLink) {
+                loadLocalContent(firstLocalLink.getAttribute('href'), firstLocalLink);
+            }
+        }
+    }
+});
