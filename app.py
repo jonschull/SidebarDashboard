@@ -110,24 +110,35 @@ def parse_sidebar_markdown():
             section = re.sub(r'^<hr>\n', '', section)
         processed_html += section
     
-    # 3. Process all links, automatically detecting external ones based on URL
-    # First, find all list items with links
-    list_items = re.findall(r'<li><a href="([^"]+)">(.*?)</a>(.*?)</li>', processed_html)
+    # 3. Process all links, preserving special formatting and handling external links
+    # First, find all list items
+    list_items = re.findall(r'<li>(.*?)</li>', processed_html, re.DOTALL)
     
-    for url, text, suffix in list_items:
-        # Check if this is an external URL (starts with http or https)
-        is_external = url.startswith(('http://', 'https://'))
+    for item_content in list_items:
+        # Find all links in the item
+        links = re.findall(r'<a href="([^"]+)">(.*?)</a>', item_content)
         
-        if is_external:
-            old_item = f'<li><a href="{url}">{text}</a>{suffix}</li>'
-            new_item = f'<li><a href="{url}" data-external="true" class="external-link">{text}</a>{suffix}</li>'
-            processed_html = processed_html.replace(old_item, new_item)
-        else:
-            # This is a local file or route
-            # Just use the URL as is, but mark it as non-external
-            old_item = f'<li><a href="{url}">{text}</a>{suffix}</li>'
-            new_item = f'<li><a href="{url}" data-external="false">{text}</a>{suffix}</li>'
-            processed_html = processed_html.replace(old_item, new_item)
+        # Process each link
+        new_item_content = item_content
+        for url, text in links:
+            # Check if this is an external URL
+            is_external = url.startswith(('http://', 'https://'))
+            
+            if is_external:
+                # Replace the link with an external link
+                old_link = f'<a href="{url}">{text}</a>'
+                new_link = f'<a href="{url}" data-external="true" class="external-link">{text}</a>'
+                new_item_content = new_item_content.replace(old_link, new_link)
+            else:
+                # Replace the link with a local link
+                old_link = f'<a href="{url}">{text}</a>'
+                new_link = f'<a href="{url}" data-external="false">{text}</a>'
+                new_item_content = new_item_content.replace(old_link, new_link)
+        
+        # Replace the original item with the processed one
+        old_item = f'<li>{item_content}</li>'
+        new_item = f'<li>{new_item_content}</li>'
+        processed_html = processed_html.replace(old_item, new_item)
     
     sidebar_html = processed_html
     return processed_html

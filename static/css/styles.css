@@ -26,7 +26,7 @@ body, html {
 
 /* Sidebar styles */
 .sidebar {
-    width: 250px;
+    width: 300px;
     background-color: #f5f5f5;
     border-right: 1px solid #ddd;
     padding: 15px;
@@ -57,16 +57,17 @@ body, html {
 }
 
 .sidebar li {
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    white-space: nowrap;
 }
 
 .sidebar a {
-    display: block;
-    padding: 8px 10px;
+    display: inline-block;
+    padding: 4px 6px;
     color: #0066cc;
     text-decoration: none;
     border-radius: 4px;
-    margin-bottom: 5px;
     cursor: pointer;
 }
 
@@ -113,7 +114,7 @@ body, html {
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 250px;
+    width: 300px;
     background-color: #f0f0f0;
     padding: 5px 15px;
     border-top: 1px solid #ddd;
