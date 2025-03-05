@@ -135,6 +135,9 @@ def parse_sidebar_markdown():
                 new_link = f'<a href="{url}" data-external="false">{text}</a>'
                 new_item_content = new_item_content.replace(old_link, new_link)
         
+        # Wrap the entire list item content in a div with a special class for styling
+        new_item_content = f'<div class="sidebar-item-content">{new_item_content}</div>'
+        
         # Replace the original item with the processed one
         old_item = f'<li>{item_content}</li>'
         new_item = f'<li>{new_item_content}</li>'

@@ -59,7 +59,14 @@ body, html {
 .sidebar li {
     margin-bottom: 8px;
     line-height: 1.4;
+}
+
+.sidebar-item-content {
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
 }
 
 .sidebar a {
