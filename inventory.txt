@@ -1,0 +1,66 @@
+# SidebarDashboard File Inventory
+
+## Active Implementation (docs/) - CRUCIAL
+These files are part of our clean static implementation for GitHub Pages:
+
+/docs/
+├── index.html          - CRUCIAL: Main entry point, minimal structure
+├── sidebar.md          - CRUCIAL: Clean markdown navigation
+├── about.html          - CRUCIAL: Documentation page
+├── test-content.html   - CRUCIAL: Example content
+├── .nojekyll          - CRUCIAL: Prevents Jekyll processing
+├── css/
+│   └── styles.css     - CRUCIAL: Sidebar-only styles
+├── js/
+│   └── viewer.js      - CRUCIAL: Markdown rendering and window positioning
+└── image/sidebar/     - CRUCIAL: Screenshot documentation
+    └── *.png          - Current screenshots
+
+## Project Documentation - CRUCIAL
+/LICENSE               - CRUCIAL: MIT License
+/README.md            - CRUCIAL: Main documentation
+
+## Development Versions - REDUNDANT
+These are previous iterations that can be archived:
+
+/static-clean/        - REDUNDANT: Copy of current implementation
+/static-test/         - VESTIGIAL: Testing version
+/static-version/      - VESTIGIAL: Previous iteration
+/static/             - VESTIGIAL: Original static assets
+
+## Original Flask Implementation - VESTIGIAL
+These files are from the original Flask version:
+
+/app.py              - VESTIGIAL: Original Flask server
+/requirements.txt    - VESTIGIAL: Python dependencies
+/templates/          - VESTIGIAL: Flask templates
+/start_dashboard.sh  - VESTIGIAL: Flask startup script
+
+## Temporary Files - MISPLACED
+These should be cleaned up:
+
+/.DS_Store           - MISPLACED: macOS system file
+/myfiles/           - MISPLACED: Testing directory
+/sample.html        - MISPLACED: Test file
+/testtext.txt       - MISPLACED: Test file
+/test.txt           - MISPLACED: Test file
+
+## Git and IDE Files - SYSTEM
+These are system files that should be left alone:
+
+/.git/              - SYSTEM: Git repository data
+/.gitignore         - SYSTEM: Git ignore rules
+/.vscode/          - SYSTEM: VS Code settings
+
+## Recommendations:
+
+1. Keep: Everything in /docs/ and root documentation
+2. Archive: static-clean, static-test, static-version directories
+3. Remove: All vestigial Flask files and temporary test files
+4. Maintain: System files (.git, .vscode, etc.)
+
+The clean implementation in /docs/ follows our key principles:
+- Fixed 300px sidebar
+- Single dependency (marked.js)
+- No internal navigation
+- Clear AI-ready documentation
