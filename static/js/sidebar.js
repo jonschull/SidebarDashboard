@@ -61,6 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create an absolute URL to prevent path accumulation
         const absoluteUrl = new URL(url, window.location.origin).href;
         
+        // Store the URL in a data attribute to ensure we use the same URL on refresh
+        element.dataset.loadedUrl = absoluteUrl;
+        
         // Set the iframe source to the absolute URL
         contentFrame.src = absoluteUrl;
         setActive(element);
@@ -172,8 +175,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function refreshSidebar() {
         // Store the currently active link URL and whether it's external
         let activeLink = sidebar.querySelector('a.active') || sidebar.querySelector('a.external-active');
-        let activeUrl = activeLink ? activeLink.getAttribute('href') : null;
-        let isActiveExternal = activeLink ? activeLink.dataset.external === "true" : false;
+        let activeUrl = null;
+        let isActiveExternal = false;
+        
+        if (activeLink) {
+            // Prefer the stored loaded URL if available (prevents URL transformation issues)
+            activeUrl = activeLink.dataset.loadedUrl || activeLink.getAttribute('href');
+            isActiveExternal = activeLink.dataset.external === "true";
+        }
         
         // If we have an active URL, make sure it's absolute
         if (activeUrl && !activeUrl.startsWith('http')) {
@@ -209,6 +218,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             if (linkUrl === activeUrl) {
                                 foundActiveLink = true;
+                                // Store the original loaded URL to maintain consistency
+                                link.dataset.loadedUrl = activeUrl;
+                                
                                 if (isActiveExternal) {
                                     link.classList.add('external-active');
                                 } else {
@@ -225,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 firstLink.classList.add('active');
                                 // Use absolute URL for the content frame
                                 const firstLinkUrl = new URL(firstLink.getAttribute('href'), window.location.origin).href;
+                                firstLink.dataset.loadedUrl = firstLinkUrl;
                                 contentFrame.src = firstLinkUrl;
                             }
                         }
@@ -235,6 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             firstLink.classList.add('active');
                             // Use absolute URL for the content frame
                             const firstLinkUrl = new URL(firstLink.getAttribute('href'), window.location.origin).href;
+                            firstLink.dataset.loadedUrl = firstLinkUrl;
                             contentFrame.src = firstLinkUrl;
                         }
                     }
