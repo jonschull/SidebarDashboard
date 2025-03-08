@@ -1,0 +1,95 @@
+/**
+ * Static Sidebar Dashboard Styles
+ * 
+ * Core styles for:
+ * 1. Sidebar layout and appearance
+ * 2. Typography and colors
+ * 3. Link handling
+ */
+
+/* Layout */
+body {
+    margin: 0;
+    height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+#sidebar {
+    width: 300px;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    box-sizing: border-box;
+}
+
+/* Typography */
+h1, h2, h3 {
+    color: #2c3e50;
+    margin-top: 0;
+}
+
+code {
+    background: #f8f9fa;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+/* Links */
+a {
+    color: #007bff;
+    text-decoration: none;
+    display: block;
+    padding: 3px 0;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* All links get an arrow since they open in windows */
+a::after {
+    content: " ↗";
+    font-size: 0.8em;
+}
+
+/* Sidebar specific */
+.sidebar-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 15px 0;
+    color: #34495e;
+}
+
+/* Lists */
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+li {
+    margin: 5px 0;
+}
+
+/* Dividers */
+hr {
+    border: none;
+    border-top: 1px solid #dee2e6;
+    margin: 20px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #sidebar {
+        width: 100%;
+    }
+}

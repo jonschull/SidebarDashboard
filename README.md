@@ -1,106 +1,66 @@
-# Sidebar Dashboard
+# Static Sidebar Dashboard
 
-A dynamic dashboard with a configurable sidebar that can be edited in real-time using markdown.
-
-## Sidebar.md - Quick Guide
-
-The sidebar is controlled by a simple markdown file (`sidebar.md`) that you can edit at any time. The dashboard will automatically refresh to show your changes.
-
-### Link Structure Rules
-
-All links in the sidebar follow these simple rules:
-
-1. **Always include file extensions** in all links:
-   - HTML files: `sample.html`, `matrix_view.html`
-   - Text files: `document.txt`
-   - Markdown files: `README.md`
-
-2. **Special Handling**:
-   - Markdown files (.md) are rendered as HTML with styling
-   - HTML files are served directly
-   - Text files are displayed with formatting
-   - Other file types are downloaded or displayed according to browser capabilities
-
-3. **External Links**: Use full URLs starting with http:// or https://
-   - These are automatically detected and open in a new window
-
-### Example Sidebar.md
-
-```markdown
-# Dashboard
-
-## Local Content
-
-- [Sample Content](sample.html)
-- [Test File](test.txt)
-- [Matrix View](matrix_view.html)
-- [README](README.md)
-- [Subfolder File](myfiles/myfile.txt)
-
-## External Links
-
-- [Gmail](https://gmail.com)
-- [GitHub](https://github.com)
-```
+A minimal, static implementation of the Sidebar Dashboard designed for GitHub Pages. This version provides a clean and efficient way to organize documentation and links, with all content opening in positioned windows.
 
 ## Features
 
-- **Dynamic Sidebar**: Automatically updates when the sidebar.md file is changed
-- **Markdown Support**: Renders markdown files as HTML
-- **URL Bar Updates**: The browser URL bar reflects the current content being viewed
-- **External Links**: Opens external links in new, positioned browser windows
-- **Error Handling**: Provides clear error messages for missing files
-- **Subfolder Support**: Access files in any subdirectory of the project
-
-## Setup and Installation
-
-1. Clone the repository
-2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-3. Run the dashboard:
-   ```
-   python app.py
-   ```
-   or use the provided shell script:
-   ```
-   ./start_dashboard.sh
-   ```
-
-## Usage
-
-1. Access the dashboard at http://localhost:8081
-2. Edit the `sidebar.md` file to customize the sidebar
-3. Click on links in the sidebar to load content in the main frame
-
-## Technical Details
-
-The dashboard is built with:
-- Flask (web framework)
-- Python-Markdown (for markdown parsing)
-- Watchdog (for file monitoring)
-- JavaScript (for dynamic content loading)
+- **Simple Sidebar**: Fixed 300px sidebar with Markdown support
+- **Smart Windows**: All links open in windows positioned to the right of the sidebar
+- **GitHub Pages Ready**: Pure static implementation, no server-side code
+- **Minimal Dependencies**: Only requires marked.js for Markdown rendering
 
 ## File Structure
 
-- `app.py`: Main Flask application
-- `sidebar.md`: Markdown file for sidebar content
-- `static/`: Static assets (CSS, JS)
-- `templates/`: HTML templates and other content
-- `start_dashboard.sh`: Shell script to start the dashboard
+```
+docs/
+├── js/
+│   └── viewer.js      # Core functionality
+├── css/
+│   └── styles.css     # Sidebar and link styles
+├── index.html         # Main entry point
+├── sidebar.md         # Navigation content (Markdown)
+├── about.html         # About page
+└── test-content.html  # Example content
+```
 
-## Contributing
+## Usage
 
-Feel free to submit issues or pull requests to improve the dashboard.
+1. Edit `sidebar.md` to define your navigation links
+2. Add content files (HTML or Markdown)
+3. All links will automatically open in positioned windows
+
+## Development
+
+This implementation follows a dual-development strategy:
+- Original version remains untouched in the root directory
+- Static version optimized for GitHub Pages deployment
+
+## Window Positioning
+
+Windows are automatically sized and positioned:
+- Width: Screen width minus sidebar (300px) and margins
+- Height: Screen height minus margins
+- Position: Right of sidebar with consistent spacing
+
+## Dependencies
+
+- [marked.js](https://marked.js.org/): For Markdown rendering
+- No other external dependencies required
+
+## GitHub Pages Setup
+
+1. Enable GitHub Pages in your repository settings
+2. Point it to the `docs` directory
+3. Your dashboard will be available at `https://[username].github.io/[repository]`
+
+## Documentation
+
+All code is documented with:
+- Function purposes and behaviors
+- Parameter descriptions
+- Side effects and state changes
+- Dependencies and requirements
 
 ## License
 
-MIT
-
-## Requirements
-
-- Python 3.6+
-- Flask
-- Markdown
-- Watchdog
+MIT License - See LICENSE file for details
