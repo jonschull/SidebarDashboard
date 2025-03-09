@@ -1,0 +1,77 @@
+# SidebarDashboard File Inventory
+
+## Clean Static Implementation (docs/) - CRUCIAL
+These files implement our clean, window-positioning approach:
+
+/docs/
+├── index.html          - CRUCIAL: Single sidebar, no content area
+├── sidebar.md          - CRUCIAL: Clean markdown navigation
+├── about.html          - CRUCIAL: Documentation page
+├── test-content.html   - CRUCIAL: Example content
+├── .nojekyll          - CRUCIAL: Prevents Jekyll processing
+├── css/
+│   └── styles.css     - CRUCIAL: Fixed 300px sidebar
+├── js/
+│   └── viewer.js      - CRUCIAL: Window positioning (sidebar + 25px)
+├── image/sidebar/     - CRUCIAL: Screenshot documentation
+    └── *.png          - Current screenshots
+
+## Flask ERA Implementation (root) - CRUCIAL
+These files implement the original ERA dashboard:
+
+/app.py              - CRUCIAL: Flask server with real-time updates
+/requirements.txt    - CRUCIAL: Python dependencies
+/templates/          - CRUCIAL: ERA template system
+  ├── sidebar.html     - CRUCIAL: ERA layout with iframe
+  ├── matrix_view.html - CRUCIAL: ERA content
+  └── sample_content.html - CRUCIAL: ERA example
+/static/            - CRUCIAL: ERA assets
+  ├── css/styles.css   - CRUCIAL: ERA styling
+  └── js/sidebar.js    - CRUCIAL: ERA behavior
+/sidebar.md         - CRUCIAL: ERA navigation content
+/start_dashboard.sh - CRUCIAL: ERA startup script
+
+## Project Documentation - CRUCIAL
+/LICENSE               - CRUCIAL: MIT License
+/README.md            - CRUCIAL: Main documentation
+/inventory.txt        - CRUCIAL: This file
+
+## System Files - SYSTEM
+/.git/              - SYSTEM: Git repository data
+/.gitignore         - SYSTEM: Git ignore rules
+/.vscode/          - SYSTEM: VS Code settings
+
+## Truly Vestigial Files - SAFE TO REMOVE
+/sample.html        - VESTIGIAL: Old test file
+/test.txt          - VESTIGIAL: Old test file
+/testtext.txt      - VESTIGIAL: Old test file
+/.DS_Store         - VESTIGIAL: macOS system file
+/myfiles/           - VESTIGIAL: Testing directory
+
+## Implementation Notes:
+
+1. Clean Static Implementation (/docs):
+   - Fixed 300px sidebar width
+   - Windows positioned at sidebar + 25px from left, 50px from top
+   - Single marked.js dependency
+   - No internal navigation or iframes
+   - Deployed on GitHub Pages
+
+2. Flask ERA Implementation (root):
+   - Uses iframes for content display
+   - Real-time sidebar.md updates
+   - Template-based approach
+   - ERA-specific content and links
+   - Runs on localhost:8081
+
+3. Testing Requirements:
+   - Both implementations must maintain their distinct approaches
+   - Clean version: verify window positioning
+   - Flask version: verify real-time updates
+   - GitHub Pages: verify clean implementation
+
+The clean implementation in /docs/ follows our key principles:
+- Fixed 300px sidebar
+- Single dependency (marked.js)
+- No internal navigation
+- Clear AI-ready documentation
