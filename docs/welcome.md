@@ -65,3 +65,21 @@ All previous versions are preserved in the Git history on GitHub.
 - The sidebar is fixed at 300px width
 - All content windows open at sidebar + 25px position for clean layout
 - Changes to markdown files are reflected immediately when you refresh the page
+
+## Using with Windsurf AI Assistant
+
+If you're running this dashboard in the Windsurf app, you can leverage the AI assistant to help you:
+
+- Start the server with a simple request like "start the dashboard server"
+- Research and create new markdown documents
+- Modify existing content
+- Debug issues with the dashboard
+- Publish your changes to GitHub Pages
+
+Simply ask the AI assistant in natural language, for example:
+- "Create a new page about [topic]"
+- "Help me format this markdown file"
+- "Start the server for me"
+- "Publish my changes to GitHub Pages"
+
+The AI assistant can handle many tasks related to the dashboard, making it easier to manage and update your content.

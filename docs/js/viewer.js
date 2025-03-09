@@ -25,7 +25,10 @@ marked.setOptions({
 let lastSidebarModified = 0;
 
 // GitHub Pages URL for this repository
-const githubPagesUrl = 'https://jonschull.github.io/SidebarDashboard/';
+const githubUsername = 'jonschull';
+const githubRepo = 'SidebarDashboard';
+const githubPagesUrl = `https://${githubUsername}.github.io/${githubRepo}/`;
+const githubStatusUrl = `https://github.com/${githubUsername}/${githubRepo}/actions`;
 
 /**
  * Initialize the dashboard
@@ -81,7 +84,8 @@ async function loadSidebar() {
         // Add publish button at the top
         const publishButton = `
             <button class="publish-button" onclick="publishToGitHub()">Publish to GitHub Pages</button>
-            <div class="publish-url">URL: ${githubPagesUrl}</div>
+            <div class="publish-url">URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
+            <div class="status-link"><a href="${githubStatusUrl}" target="_blank">Check Deployment Status</a></div>
             <hr>
         `;
         
@@ -392,6 +396,19 @@ function publishToGitHub() {
                     color: #dc3545;
                     font-weight: bold;
                 }
+                .status-button {
+                    display: inline-block;
+                    margin-top: 15px;
+                    padding: 8px 16px;
+                    background-color: #6c757d;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 4px;
+                    font-weight: bold;
+                }
+                .status-button:hover {
+                    background-color: #5a6268;
+                }
             </style>
         </head>
         <body>
@@ -427,6 +444,16 @@ function publishToGitHub() {
                 updateOutput(data.output);
                 updateOutput('Publishing complete! Your changes are now live at:', false, true);
                 updateOutput(githubPagesUrl, false, true);
+                
+                // Add a button to check deployment status
+                const body = publishWindow.document.querySelector('body');
+                const statusButton = publishWindow.document.createElement('a');
+                statusButton.href = githubStatusUrl;
+                statusButton.target = '_blank';
+                statusButton.className = 'status-button';
+                statusButton.textContent = 'Check Deployment Status';
+                body.appendChild(statusButton);
+                
                 updateOutput('\nNote: It may take a few minutes for changes to appear on GitHub Pages.', false, true);
             } else {
                 // Show error
