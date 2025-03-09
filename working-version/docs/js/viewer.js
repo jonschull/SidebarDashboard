@@ -5,6 +5,8 @@
  * 1. Renders markdown sidebar
  * 2. Opens all links in positioned windows
  * 3. Renders markdown files directly
+ * 4. Auto-refreshes sidebar content
+ * 5. Provides one-click publishing to GitHub Pages
  * 
  * Dependencies:
  * - marked.js: For Markdown rendering
@@ -19,6 +21,15 @@ marked.setOptions({
     breaks: true
 });
 
+// Track the last modified time of sidebar.md
+let lastSidebarModified = 0;
+
+// GitHub Pages URL for this repository
+const githubUsername = 'jonschull';
+const githubRepo = 'SidebarDashboard';
+const githubPagesUrl = `https://${githubUsername}.github.io/${githubRepo}/`;
+const githubStatusUrl = `https://github.com/${githubUsername}/${githubRepo}/actions`;
+
 /**
  * Initialize the dashboard
  * Loads and renders sidebar content
@@ -26,23 +37,126 @@ marked.setOptions({
 async function initDashboard() {
     try {
         // Load and render sidebar
-        const sidebarMd = await fetch('sidebar.md').then(r => r.text());
+        await loadSidebar();
+        
+        // Load welcome content in the main area
+        await loadWelcomeContent();
+        
+        // Setup auto-refresh for sidebar
+        setInterval(checkSidebarUpdates, 2000);
+    } catch (error) {
+        console.error('Failed to initialize:', error);
+        document.getElementById('sidebar').innerHTML = 
+            '<div class="sidebar-title">Error</div>' +
+            '<p>Failed to load sidebar content</p>';
+    }
+}
+
+/**
+ * Load and render the sidebar content
+ */
+async function loadSidebar() {
+    try {
+        // Add cache-busting parameter
+        const timestamp = new Date().getTime();
+        const response = await fetch('sidebar.md?t=' + timestamp);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to load sidebar: ${response.status} ${response.statusText}`);
+        }
+        
+        // Get last modified time from headers if available
+        const lastModified = response.headers.get('Last-Modified');
+        if (lastModified) {
+            lastSidebarModified = new Date(lastModified).getTime();
+        } else {
+            lastSidebarModified = timestamp;
+        }
+        
+        const sidebarMd = await response.text();
         const html = marked.parse(sidebarMd);
         
         // Process HTML to add classes
         const processedHtml = html
             .replace(/<h1>(.*?)<\/h1>/g, '<div class="sidebar-title">$1</div>')
             .replace(/<h2>(.*?)<\/h2>/g, '<div class="section-title">$1</div>');
-            
-        document.getElementById('sidebar').innerHTML = processedHtml;
+        
+        // Add publish button at the top
+        const publishButton = `
+            <button class="publish-button" onclick="publishToGitHub()">Publish to GitHub Pages</button>
+            <div class="publish-url">URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
+            <div class="status-link"><a href="${githubStatusUrl}" target="_blank">Check Deployment Status</a></div>
+            <hr>
+        `;
+        
+        document.getElementById('sidebar').innerHTML = publishButton + processedHtml;
         
         // Setup navigation
         setupNavigation();
+        
+        console.log('Sidebar loaded at:', new Date().toLocaleTimeString());
     } catch (error) {
-        console.error('Failed to initialize:', error);
-        document.getElementById('sidebar').innerHTML = 
-            '<div class="sidebar-title">Error</div>' +
-            '<p>Failed to load sidebar content</p>';
+        console.error('Failed to load sidebar:', error);
+        throw error;
+    }
+}
+
+/**
+ * Load welcome content in the main content area
+ */
+async function loadWelcomeContent() {
+    try {
+        const contentArea = document.getElementById('content-area');
+        
+        // Show loading indicator
+        contentArea.innerHTML = '<p>Loading welcome content...</p>';
+        
+        // Add cache-busting parameter
+        const timestamp = new Date().getTime();
+        const response = await fetch('welcome.md?t=' + timestamp);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to load welcome content: ${response.status} ${response.statusText}`);
+        }
+        
+        const welcomeContent = await response.text();
+        contentArea.innerHTML = marked.parse(welcomeContent);
+        
+        console.log('Welcome content loaded');
+    } catch (error) {
+        console.error('Failed to load welcome content:', error);
+        document.getElementById('content-area').innerHTML = 
+            '<h1>Welcome to Static Dashboard</h1>' +
+            '<p>There was an error loading the welcome content. Please check the console for details.</p>';
+    }
+}
+
+/**
+ * Check if sidebar.md has been updated and reload if necessary
+ */
+async function checkSidebarUpdates() {
+    try {
+        // Add cache-busting parameter
+        const timestamp = new Date().getTime();
+        const response = await fetch('sidebar.md?t=' + timestamp, { method: 'HEAD' });
+        
+        if (!response.ok) {
+            return;
+        }
+        
+        // Get last modified time from headers if available
+        const lastModified = response.headers.get('Last-Modified');
+        if (lastModified) {
+            const modifiedTime = new Date(lastModified).getTime();
+            
+            // If sidebar has been modified, reload it
+            if (modifiedTime > lastSidebarModified) {
+                console.log('Sidebar updated, reloading...');
+                await loadSidebar();
+            }
+        }
+    } catch (error) {
+        console.error('Failed to check sidebar updates:', error);
     }
 }
 
@@ -237,6 +351,120 @@ function openWindow(url, title) {
         console.error('Failed to open window:', error);
         alert(`Failed to open window: ${error.message}`);
     }
+}
+
+/**
+ * Publish changes to GitHub Pages
+ * Executes a git add, commit, and push operation
+ */
+function publishToGitHub() {
+    // Show confirmation dialog
+    if (!confirm('Are you sure you want to publish to GitHub Pages?\n\nThis will push all changes to the repository.')) {
+        return;
+    }
+    
+    // Create a popup window to show the publishing process
+    const publishWindow = window.open('', 'Publishing to GitHub Pages', 'width=600,height=400,resizable=yes');
+    publishWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Publishing to GitHub Pages</title>
+            <style>
+                body {
+                    font-family: monospace;
+                    padding: 20px;
+                    background: #f8f9fa;
+                }
+                h2 {
+                    color: #2c3e50;
+                }
+                #output {
+                    background: #000;
+                    color: #fff;
+                    padding: 15px;
+                    border-radius: 5px;
+                    height: 250px;
+                    overflow-y: auto;
+                    white-space: pre-wrap;
+                }
+                .success {
+                    color: #28a745;
+                    font-weight: bold;
+                }
+                .error {
+                    color: #dc3545;
+                    font-weight: bold;
+                }
+                .status-button {
+                    display: inline-block;
+                    margin-top: 15px;
+                    padding: 8px 16px;
+                    background-color: #6c757d;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 4px;
+                    font-weight: bold;
+                }
+                .status-button:hover {
+                    background-color: #5a6268;
+                }
+            </style>
+        </head>
+        <body>
+            <h2>Publishing to GitHub Pages</h2>
+            <div id="output">Starting publish process...</div>
+        </body>
+        </html>
+    `);
+    
+    // Function to update the output in the popup window
+    const updateOutput = (message, isError = false, isSuccess = false) => {
+        const outputDiv = publishWindow.document.getElementById('output');
+        const messageClass = isError ? 'error' : (isSuccess ? 'success' : '');
+        
+        if (messageClass) {
+            outputDiv.innerHTML += `<div class="${messageClass}">${message}</div>`;
+        } else {
+            outputDiv.innerHTML += message + '\n';
+        }
+        
+        // Scroll to bottom
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+    };
+    
+    // Call the server endpoint to trigger the publish script
+    updateOutput('Connecting to server...');
+    
+    fetch('/publish')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show the full output
+                updateOutput(data.output);
+                updateOutput('Publishing complete! Your changes are now live at:', false, true);
+                updateOutput(githubPagesUrl, false, true);
+                
+                // Add a button to check deployment status
+                const body = publishWindow.document.querySelector('body');
+                const statusButton = publishWindow.document.createElement('a');
+                statusButton.href = githubStatusUrl;
+                statusButton.target = '_blank';
+                statusButton.className = 'status-button';
+                statusButton.textContent = 'Check Deployment Status';
+                body.appendChild(statusButton);
+                
+                updateOutput('\nNote: It may take a few minutes for changes to appear on GitHub Pages.', false, true);
+            } else {
+                // Show error
+                updateOutput('Error during publishing:', true);
+                updateOutput(data.error || 'Unknown error', true);
+            }
+        })
+        .catch(error => {
+            updateOutput('Failed to connect to server:', true);
+            updateOutput(error.message, true);
+        });
 }
 
 // Initialize when DOM is ready
