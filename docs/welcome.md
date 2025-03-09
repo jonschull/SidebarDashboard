@@ -1,10 +1,11 @@
-# Welcome to Static Dashboard!!
+# Welcome to Static Dashboard with Auto-Refresh!!
 
 This is a simple, clean static dashboard with a markdown sidebar that allows you to:
 
 1. Create and organize content using markdown files
 2. View content in properly positioned windows
 3. Publish your changes to GitHub Pages with one click
+4. **Auto-refresh content** when files are modified locally
 
 ## Getting Started
 
