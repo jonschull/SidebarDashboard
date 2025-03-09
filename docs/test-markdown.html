@@ -3,27 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Markdown</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Markdown Test Page</title>
+    <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        /**
+         * Initialize the page
+         * Loads and renders markdown content
+         */
+        async function initPage() {
+            try {
+                // Load and render markdown
+                const markdownContent = await fetch('test-markdown.md').then(r => r.text());
+                const html = marked.parse(markdownContent);
+                document.getElementById('content').innerHTML = html;
+            } catch (error) {
+                console.error('Failed to initialize:', error);
+                document.getElementById('content').innerHTML = 
+                    '<h1>Error</h1>' +
+                    '<p>Failed to load markdown content</p>';
+            }
+        }
+
+        // Start when DOM is ready
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
 </head>
 <body>
-    <div id="content"></div>
-    <script>
-        const markdown = `# Test Markdown
-
-This is a test markdown file with:
-- A bullet list
-- **Bold text**
-- *Italic text*
-
-## Code Sample
-\`\`\`python
-print("Hello World")
-\`\`\`
-
-[Link to somewhere](https://example.com)`;
-
-        document.getElementById('content').innerHTML = marked.parse(markdown);
-    </script>
+    <div id="content" class="content-container"></div>
 </body>
 </html>
