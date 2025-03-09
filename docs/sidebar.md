@@ -3,6 +3,7 @@
 ## Documentation
 - [About](about.html)
 - [Test Content](test-content.html)
+- [Test Markdown](../test-markdown.md)
 
 ## External Links
 - [GitHub Repository](https://github.com/jonschull/SidebarDashboard)

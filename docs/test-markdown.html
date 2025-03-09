@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Markdown</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div id="content"></div>
+    <script>
+        const markdown = `# Test Markdown
+
+This is a test markdown file with:
+- A bullet list
+- **Bold text**
+- *Italic text*
+
+## Code Sample
+\`\`\`python
+print("Hello World")
+\`\`\`
+
+[Link to somewhere](https://example.com)`;
+
+        document.getElementById('content').innerHTML = marked.parse(markdown);
+    </script>
+</body>
+</html>
