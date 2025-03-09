@@ -1,4 +1,4 @@
-# Welcome to Static Dashboard!
+# Welcome to Static Dashboard!!
 
 This is a simple, clean static dashboard with a markdown sidebar that allows you to:
 
@@ -54,6 +54,12 @@ When you're ready to publish your changes to GitHub Pages:
 2. Confirm that you want to publish
 3. Wait for the publishing process to complete
 
+**Important Note About Publishing:**
+
+- Regular code updates (git push) do NOT automatically update the GitHub Pages site
+- Only clicking the "Publish" button will copy files from working-version/docs to docs and update the live site
+- After publishing, it may take a few minutes for changes to appear on GitHub Pages
+
 Your content will be available at: https://jonschull.github.io/SidebarDashboard/
 
 All previous versions are preserved in the Git history on GitHub.
@@ -77,6 +83,7 @@ If you're running this dashboard in the Windsurf app, you can leverage the AI as
 - Publish your changes to GitHub Pages
 
 Simply ask the AI assistant in natural language, for example:
+
 - "Create a new page about [topic]"
 - "Help me format this markdown file"
 - "Start the server for me"
