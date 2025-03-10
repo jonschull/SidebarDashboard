@@ -1,13 +1,21 @@
-# Welcome to Static Dashboard with Auto-Refresh!!
+# Welcome to My Dashboard!
 
-This is a simple, clean static dashboard with a markdown sidebar that allows you to:
+
+There are three modes.
+
+* in **Reader Mode,** you just browse, courtesy of github pages.  Here's the link to this project's github Page.  [https://jonschull.github.io/SidebarDashboard/](https://jonschull.github.io/SidebarDashboard/)
+* in **Author Mode,** you can create and publish pages.  I recommend [Windsurf](https://codeium.com/windsurf/download) for AI assistance authoring, researching and publishing.  [Windsurf QuickStart.](WIndsurfQuickstart.md)
+* in **Developer Mode,** you can develop the system.  Use WIndsurf for AI Assistance. (Ask theAI to put you in Developer Mode.)
+* To create your own version of this system and publish your own dashboards, ***stay tuned...***
+
+My Dashboard; this is a simple, clean static dashboard with a markdown sidebar that allows you to:
 
 1. Create and organize content using markdown files
 2. View content in properly positioned windows
 3. Publish your changes to GitHub Pages with one click
 4. **Auto-refresh content** when files are modified locally
 
-## Getting Started
+## for Authors: Getting Started 
 
 ### Running the Server
 
@@ -17,7 +25,7 @@ The dashboard requires a local server to function properly. You can start the se
 ./quick-test.sh start
 ```
 
-from the root directory of the project. This will start a server on http://localhost:8080 that serves files from the `docs` directory.
+from the root directory of the project. This will start a server on [http://localhost:8080](http://localhost:8080) that serves files from the `docs` directory.
 
 To stop the server, run:
 
@@ -61,7 +69,7 @@ When you're ready to publish your changes to GitHub Pages:
 - Only clicking the "Publish" button will copy files from working-version/docs to docs and update the live site
 - After publishing, it may take a few minutes for changes to appear on GitHub Pages
 
-Your content will be available at: https://jonschull.github.io/SidebarDashboard/
+Your content will be available at: [https://jonschull.github.io/SidebarDashboard/](https://jonschull.github.io/SidebarDashboard/)
 
 All previous versions are preserved in the Git history on GitHub.
 

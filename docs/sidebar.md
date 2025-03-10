@@ -7,6 +7,7 @@
 - [Test Markdown](test-markdown.md)
 - [Test Update](test-update.md)
 - [Implementation Considerations](considerations.md)
+- [Issues](Issues.md) 
 - [Welcome.md](Welcome.md)
 
 ## External Links

@@ -43,6 +43,9 @@ async function initDashboard() {
         // Load and render sidebar
         await loadSidebar();
         
+        // Check for mode and display appropriate greeting
+        await checkModeAndGreet();
+        
         // Load welcome content in the main area
         await loadWelcomeContent();
         
@@ -54,6 +57,42 @@ async function initDashboard() {
         document.getElementById('sidebar').innerHTML = 
             '<div class="sidebar-title">Error</div>' +
             '<p>Failed to load sidebar content</p>';
+    }
+}
+
+/**
+ * Check which mode is active and display the appropriate greeting
+ */
+async function checkModeAndGreet() {
+    try {
+        // First, try to detect if we're in Author Mode by checking the window title
+        const isAuthorMode = document.title.includes('Author Mode') || 
+                            window.location.href.includes('author-mode') ||
+                            document.documentElement.style.getPropertyValue('--theme-color') === '#4CAF50';
+                            
+        // If we can't determine from title, check if we're in Development Mode
+        const isDevMode = document.title.includes('Development Mode') || 
+                         window.location.href.includes('development-mode') ||
+                         document.documentElement.style.getPropertyValue('--theme-color') === '#2196F3';
+        
+        // Set the greeting file based on detected mode
+        let greetingFile = 'welcome.md'; // Default
+        
+        if (isAuthorMode) {
+            greetingFile = 'author_greeting.md';
+            console.log('Author Mode detected, loading author greeting');
+        } else if (isDevMode) {
+            greetingFile = 'dev_greeting.md';
+            console.log('Development Mode detected, loading dev greeting');
+        }
+        
+        // Load the appropriate greeting
+        await loadContent(greetingFile);
+        
+    } catch (error) {
+        console.error('Failed to check mode and greet:', error);
+        // Fall back to loading welcome content
+        await loadWelcomeContent();
     }
 }
 
@@ -111,20 +150,35 @@ async function loadSidebar() {
  */
 async function loadWelcomeContent() {
     try {
+        await loadContent('welcome.md');
+    } catch (error) {
+        console.error('Failed to load welcome content:', error);
+        document.getElementById('content-area').innerHTML = 
+            '<h1>Welcome to Static Dashboard</h1>' +
+            '<p>There was an error loading the welcome content. Please check the console for details.</p>';
+    }
+}
+
+/**
+ * Load content in the main content area
+ * @param {string} contentFile - Markdown file to load
+ */
+async function loadContent(contentFile) {
+    try {
         const contentArea = document.getElementById('content-area');
         
         // Show loading indicator
-        contentArea.innerHTML = '<p>Loading welcome content...</p>';
+        contentArea.innerHTML = `<p>Loading ${contentFile}...</p>`;
         
         // Set current content file
-        currentContentFile = 'welcome.md';
+        currentContentFile = contentFile;
         
         // Add cache-busting parameter
         const timestamp = new Date().getTime();
         const response = await fetch(currentContentFile + '?t=' + timestamp);
         
         if (!response.ok) {
-            throw new Error(`Failed to load welcome content: ${response.status} ${response.statusText}`);
+            throw new Error(`Failed to load content: ${response.status} ${response.statusText}`);
         }
         
         // Get last modified time from headers if available
@@ -135,15 +189,13 @@ async function loadWelcomeContent() {
             lastContentModified = timestamp;
         }
         
-        const welcomeContent = await response.text();
-        contentArea.innerHTML = marked.parse(welcomeContent);
+        const content = await response.text();
+        contentArea.innerHTML = marked.parse(content);
         
-        console.log('Welcome content loaded');
+        console.log(`Content ${contentFile} loaded`);
     } catch (error) {
-        console.error('Failed to load welcome content:', error);
-        document.getElementById('content-area').innerHTML = 
-            '<h1>Welcome to Static Dashboard</h1>' +
-            '<p>There was an error loading the welcome content. Please check the console for details.</p>';
+        console.error(`Failed to load content ${contentFile}:`, error);
+        throw error;
     }
 }
 
