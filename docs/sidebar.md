@@ -1,27 +1,14 @@
-# Static Dashboard (Updated 15:39)
+# Test Dashboard
 
-## Documentation
+- [Home](index.html)
+- [Test Page](test.html)
 
-- [About](about.html)
-- [Test Content](test-content.html)
-- [Test Markdown](test-markdown.md)
-- [Test Update](test-update.md)
-- [Implementation Considerations](considerations.md)
-- [Issues](Issues.md) 
-- [Welcome.md](Welcome.md)
+## About This Dashboard
 
-## External Links
+This is a test dashboard to verify the symbolic link approach works correctly.
 
-- [GitHub Repository](https://github.com/jonschull/SidebarDashboard)
-- [Marked.js Docs](https://marked.js.org/)
-- [GitHub Pages](https://pages.github.com/)
+## Dashboard Features
 
-## Resources
-
-- [HTML Reference](https://developer.mozilla.org/en-US/docs/Web/HTML)
-- [CSS Reference](https://developer.mozilla.org/en-US/docs/Web/CSS)
-- [JavaScript Reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-
-## Markdown Files
-
-- [Sidebar Source](sidebar.md)
+- Simple test content
+- Verifies symbolic link functionality
+- Tests dashboard switching

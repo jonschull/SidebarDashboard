@@ -28,11 +28,14 @@ let lastSidebarModified = 0;
 let currentContentFile = 'welcome.md';
 let lastContentModified = 0;
 
-// GitHub Pages URL for this repository
-const githubUsername = 'jonschull';
-const githubRepo = 'SidebarDashboard';
-const githubPagesUrl = `https://${githubUsername}.github.io/${githubRepo}/`;
-const githubStatusUrl = `https://github.com/${githubUsername}/${githubRepo}/actions`;
+// GitHub Pages URL for this repository - use configuration if available
+const githubUsername = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubUsername : 'jonschull';
+const githubRepo = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubRepo : 'SidebarDashboard';
+const githubPagesUrl = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubPagesUrl : `https://${githubUsername}.github.io/${githubRepo}/`;
+const githubStatusUrl = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubStatusUrl : `https://github.com/${githubUsername}/${githubRepo}/actions`;
+const publishStatus = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.publishStatus : 'published';
+const isTestDashboard = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.isTestDashboard : false;
+const publishingEnabled = window.DASHBOARD_CONFIG ? (window.DASHBOARD_CONFIG.publishingEnabled !== false) : true;
 
 /**
  * Initialize the dashboard
@@ -126,12 +129,31 @@ async function loadSidebar() {
             .replace(/<h2>(.*?)<\/h2>/g, '<div class="section-title">$1</div>');
         
         // Add publish button at the top
-        const publishButton = `
-            <button class="publish-button" onclick="publishToGitHub()">Publish to GitHub Pages</button>
-            <div class="publish-url">URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
-            <div class="status-link"><a href="${githubStatusUrl}" target="_blank">Check Deployment Status</a></div>
-            <hr>
-        `;
+        let publishButton = '';
+        if (publishingEnabled && !isTestDashboard) {
+            if (publishStatus === 'published') {
+                publishButton = `
+                    <button class="publish-button" onclick="publishToGitHub()">Update GitHub Pages</button>
+                    <div class="publish-url">URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
+                    <div class="status-link"><a href="${githubStatusUrl}" target="_blank">Check Deployment Status</a></div>
+                    <hr>
+                `;
+            } else if (publishStatus === 'unpublished') {
+                publishButton = `
+                    <button class="publish-button" onclick="publishToGitHub()">Publish to GitHub Pages</button>
+                    <div class="publish-url">Eventual URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
+                    <div class="status-link">Status: <span style="color: #dc3545;">Not yet published</span></div>
+                    <hr>
+                `;
+            } else if (publishStatus === 'pending') {
+                publishButton = `
+                    <button class="publish-button" disabled>Publishing to GitHub Pages...</button>
+                    <div class="publish-url">URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
+                    <div class="status-link"><a href="${githubStatusUrl}" target="_blank">Check Deployment Status</a></div>
+                    <hr>
+                `;
+            }
+        }
         
         document.getElementById('sidebar').innerHTML = publishButton + processedHtml;
         
@@ -480,8 +502,17 @@ function openWindow(url, title) {
  * Only this publish function will update the GitHub Pages site.
  */
 function publishToGitHub() {
+    // Confirmation message based on publish status
+    let confirmMessage = 'Are you sure you want to publish to GitHub Pages?\n\nThis will copy files from working-version/docs to docs and update the live site.';
+    
+    if (publishStatus === 'unpublished') {
+        confirmMessage = 'This will be the FIRST PUBLICATION of this dashboard to GitHub Pages.\n\nAre you sure you want to proceed?';
+    } else if (publishStatus === 'published') {
+        confirmMessage = 'Are you sure you want to update this dashboard on GitHub Pages?\n\nThis will update the live site with your current changes.';
+    }
+    
     // Show confirmation dialog
-    if (!confirm('Are you sure you want to publish to GitHub Pages?\n\nThis will copy files from working-version/docs to docs and update the live site.')) {
+    if (!confirm(confirmMessage)) {
         return;
     }
     
@@ -542,7 +573,7 @@ function publishToGitHub() {
             </style>
         </head>
         <body>
-            <h2>Publishing to GitHub Pages</h2>
+            <h2>${publishStatus === 'unpublished' ? 'First Publication to GitHub Pages' : 'Publishing to GitHub Pages'}</h2>
             <div id="output">Starting publish process...</div>
         </body>
         </html>
@@ -572,7 +603,13 @@ function publishToGitHub() {
             if (data.success) {
                 // Show the full output
                 updateOutput(data.output);
-                updateOutput('Publishing complete! Your changes are now live at:', false, true);
+                
+                if (publishStatus === 'unpublished') {
+                    updateOutput('First publication complete! Your dashboard is now live at:', false, true);
+                } else {
+                    updateOutput('Publishing complete! Your changes are now live at:', false, true);
+                }
+                
                 updateOutput(githubPagesUrl, false, true);
                 
                 // Add a button to check deployment status
@@ -584,7 +621,14 @@ function publishToGitHub() {
                 statusButton.textContent = 'Check Deployment Status';
                 body.appendChild(statusButton);
                 
+                // Add note about deployment time
                 updateOutput('\nNote: It may take a few minutes for changes to appear on GitHub Pages.', false, true);
+                
+                // Update publish status if it was unpublished
+                if (publishStatus === 'unpublished') {
+                    // We would need to update the configuration file, but for now just refresh the page
+                    updateOutput('\nRefresh the page to update the dashboard status.', false, true);
+                }
             } else {
                 // Show error
                 updateOutput('Error during publishing:', true);
