@@ -8,6 +8,8 @@ window.DASHBOARD_CONFIG = {
     name: 'Test Dashboard',
     githubUsername: 'jonschull',
     githubRepo: 'TestDashboard',
-    githubPagesUrl: 'https://jonschull.github.io/TestDashboard/',
-    githubStatusUrl: 'https://github.com/jonschull/TestDashboard/actions'
+    githubPagesUrl: '#', // Disabled for test dashboard
+    githubStatusUrl: '#', // Disabled for test dashboard
+    isTestDashboard: true, // Flag to indicate this is a test dashboard
+    publishingEnabled: false // Disable publishing for test dashboard
 };

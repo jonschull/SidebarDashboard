@@ -33,6 +33,8 @@ const githubUsername = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubU
 const githubRepo = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubRepo : 'SidebarDashboard';
 const githubPagesUrl = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubPagesUrl : `https://${githubUsername}.github.io/${githubRepo}/`;
 const githubStatusUrl = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubStatusUrl : `https://github.com/${githubUsername}/${githubRepo}/actions`;
+const isTestDashboard = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.isTestDashboard : false;
+const publishingEnabled = window.DASHBOARD_CONFIG ? (window.DASHBOARD_CONFIG.publishingEnabled !== false) : true;
 
 /**
  * Initialize the dashboard
@@ -126,12 +128,15 @@ async function loadSidebar() {
             .replace(/<h2>(.*?)<\/h2>/g, '<div class="section-title">$1</div>');
         
         // Add publish button at the top
-        const publishButton = `
-            <button class="publish-button" onclick="publishToGitHub()">Publish to GitHub Pages</button>
-            <div class="publish-url">URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
-            <div class="status-link"><a href="${githubStatusUrl}" target="_blank">Check Deployment Status</a></div>
-            <hr>
-        `;
+        let publishButton = '';
+        if (publishingEnabled && !isTestDashboard) {
+            publishButton = `
+                <button class="publish-button" onclick="publishToGitHub()">Publish to GitHub Pages</button>
+                <div class="publish-url">URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
+                <div class="status-link"><a href="${githubStatusUrl}" target="_blank">Check Deployment Status</a></div>
+                <hr>
+            `;
+        }
         
         document.getElementById('sidebar').innerHTML = publishButton + processedHtml;
         
@@ -480,6 +485,11 @@ function openWindow(url, title) {
  * Only this publish function will update the GitHub Pages site.
  */
 function publishToGitHub() {
+    if (!publishingEnabled || isTestDashboard) {
+        alert('Publishing is disabled for this dashboard.');
+        return;
+    }
+    
     // Show confirmation dialog
     if (!confirm('Are you sure you want to publish to GitHub Pages?\n\nThis will copy files from working-version/docs to docs and update the live site.')) {
         return;
