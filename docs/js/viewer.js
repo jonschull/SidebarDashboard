@@ -626,8 +626,31 @@ function publishToGitHub() {
                 
                 // Update publish status if it was unpublished
                 if (publishStatus === 'unpublished') {
-                    // We would need to update the configuration file, but for now just refresh the page
-                    updateOutput('\nRefresh the page to update the dashboard status.', false, true);
+                    // Update the publish status in memory
+                    publishStatus = 'published';
+                    
+                    // Add a button to refresh the dashboard
+                    const refreshButton = publishWindow.document.createElement('button');
+                    refreshButton.textContent = 'Refresh Dashboard';
+                    refreshButton.style.marginLeft = '10px';
+                    refreshButton.style.padding = '8px 16px';
+                    refreshButton.style.backgroundColor = '#28a745';
+                    refreshButton.style.color = 'white';
+                    refreshButton.style.border = 'none';
+                    refreshButton.style.borderRadius = '4px';
+                    refreshButton.style.fontWeight = 'bold';
+                    refreshButton.style.cursor = 'pointer';
+                    
+                    refreshButton.onclick = function() {
+                        // Refresh the main window
+                        window.location.reload();
+                        // Close the publish window
+                        publishWindow.close();
+                    };
+                    
+                    publishWindow.document.querySelector('body').appendChild(refreshButton);
+                    
+                    updateOutput('\nClick "Refresh Dashboard" to update the dashboard status.', false, true);
                 }
             } else {
                 // Show error
