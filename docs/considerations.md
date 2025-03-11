@@ -1,13 +1,7 @@
 # Implementation Considerations
 
-* we need to figure out a pathway *
-
-1. * me to create additional dashboards *
-2. * other people to create their own dashboard (they'd need help setting up a github account etc.). *
-
-* For both functions the Cascade AI can act as a "concierge" *
-
-* Options and considerations? *
+* I'm going to have mutliple dashboards.  This prototye but others as well.  I need a way of switching between them, hopefully without having to proliferate project foldrs.
+* 
 
 ## Simplified Multi-Dashboard Approach
 
@@ -32,6 +26,19 @@ The AI concierge will guide users through the process:
 - Managing multiple dashboards if needed
 
 Let the concierge walk the user through the process rather than creating complex documentation
+
+## minor edits
+
+* It would be nice to be able to make edits by clicking on the browser rather than switching to cascade and looking for the file in the sidebar
+  1. in github pages
+  2. in localhost
+* we need to figure out a pathway for
+
+1. * me to create additional dashboards *
+2. * other people to create their own dashboard (they'd need help setting up a github account etc.). *
+
+* For both functions the Cascade AI can act as a "concierge" *
+* Options and considerations? *
 
 ## AI Concierge Guidance
 
@@ -58,16 +65,19 @@ The AI assistant will provide different guidance based on the mode:
 ## The Three Modes of SidebarDashboard
 
 1. **Reader Mode**: Users view published content on GitHub Pages
+
 - No AI assistance (just standard web browsing)
 - Clean, distraction-free reading experience
 - Access via username.github.io/DashboardName
 
 2. **Author Mode**: Content creators work in Windsurf IDE
+
 - AI assistance focused on content creation
 - Limited view of project files (docs directory only)
 - Green-themed workspace for clear context
 
 3. **Development Mode**: Developers work in Windsurf IDE
+
 - AI assistance focused on technical implementation
 - Full access to all project files and directories
 - Standard workspace theme
@@ -77,28 +87,33 @@ The AI assistant will provide different guidance based on the mode:
 Using separate GitHub repositories for each dashboard offers several key advantages:
 
 1. **Independent Publishing and Versioning**
+
 - Each dashboard has its own commit history
 - Changes to one dashboard don't affect others
 - Update dashboards independently without risk
 
 2. **Clean URLs and Organization**
+
 - Predictable URLs: username.github.io/DashboardName
 - Clear separation in GitHub's interface
 - Easy for users to remember and share
 
 3. **Simplified Access Control**
+
 - Grant different collaborators access to different dashboards
 - Some dashboards can be private while others are public
 - Easier to transfer ownership of a specific dashboard if needed
 
 4. **Reduced Complexity**
+
 - No complex branch management or subdirectory organization
 - Avoids potential conflicts between dashboards
 - Simpler mental model for both authors and developers
 
 ## Staged Development Plan
 
-### Phase 1: Stabilize Current Implementation (Current) 
+### Phase 1: Stabilize Current Implementation (Current)
+
 - Ensure Author Mode and Development Mode work reliably
 - Fix server management in mode-switching scripts
 - Clarify documentation for existing functionality

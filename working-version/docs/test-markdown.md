@@ -1,15 +1,16 @@
 # Test Markdown File
 
 This is a test markdown file with:
+
 - A bullet list
 - **Bold text**
 - *Italic text*
 
 ## Additional Features
 
-- [x] Lists
-- [x] Bold text
-- [x] Italic text
+- [X] Lists
+- [X] Bold text
+- [X] Italic text
 - [ ] More features to test
 
 ```javascript

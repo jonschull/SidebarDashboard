@@ -1,0 +1,112 @@
+{
+  "folders": [
+    {
+      "path": "working-version/docs",
+      "name": "SidebarDashboard - Author Mode"
+    }
+  ],
+  "settings": {
+    "window.title": "SidebarDashboard - Author Mode",
+    "workbench.colorCustomizations": {
+      "titleBar.activeBackground": "#2b7d4f",
+      "titleBar.activeForeground": "#ffffff",
+      "activityBar.background": "#2b7d4f",
+      "activityBar.foreground": "#ffffff"
+    },
+    "editor.wordWrap": "on",
+    "markdown.preview.breaks": true,
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true
+    },
+    "terminal.integrated.cwd": "${workspaceFolder}/..",
+    "terminal.integrated.defaultProfile.osx": "zsh"
+  },
+  "extensions": {
+    "recommendations": [
+      "yzhang.markdown-all-in-one",
+      "davidanson.vscode-markdownlint"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Initialize Author Environment",
+        "type": "shell",
+        "command": "../workspace_init.sh author",
+        "options": {
+          "cwd": "${workspaceFolder}/.."
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new",
+          "clear": true
+        },
+        "runOptions": {
+          "runOn": "folderOpen"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Start Dashboard Server",
+        "type": "shell",
+        "command": "./quick-test.sh",
+        "options": {
+          "cwd": "${workspaceFolder}/.."
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new",
+          "focus": true
+        },
+        "problemMatcher": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "Stop Dashboard Server",
+        "type": "shell",
+        "command": "./quick-test.sh stop",
+        "options": {
+          "cwd": "${workspaceFolder}/.."
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Open Dashboard in Browser",
+        "type": "shell",
+        "command": "open http://localhost:8080",
+        "options": {
+          "cwd": "${workspaceFolder}/.."
+        },
+        "presentation": {
+          "reveal": "silent"
+        },
+        "problemMatcher": []
+      }
+    ]
+  },
+  "launch": {
+    "configurations": [
+      {
+        "name": "Start Dashboard Server",
+        "type": "node",
+        "request": "launch",
+        "cwd": "${workspaceFolder}/..",
+        "program": "${workspaceFolder}/../quick-test.sh",
+        "presentation": {
+          "hidden": false,
+          "group": "Dashboard",
+          "order": 1
+        }
+      }
+    ]
+  }
+}

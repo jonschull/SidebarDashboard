@@ -1,4 +1,4 @@
-# Static Dashboard (Updated 14:32)
+# Static Dashboard (Updated 15:39)
 
 ## Documentation
 
@@ -6,6 +6,9 @@
 - [Test Content](test-content.html)
 - [Test Markdown](test-markdown.md)
 - [Test Update](test-update.md)
+- [Implementation Considerations](considerations.md)
+- [Issues](Issues.md) 
+- [Welcome.md](Welcome.md)
 
 ## External Links
 
