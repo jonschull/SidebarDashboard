@@ -10,5 +10,5 @@ window.DASHBOARD_CONFIG = {
     githubRepo: 'SidebarDashboard',
     githubPagesUrl: 'https://jonschull.github.io/SidebarDashboard/',
     githubStatusUrl: 'https://github.com/jonschull/SidebarDashboard/actions',
-    publishStatus: 'unpublished' // Options: 'published', 'unpublished', 'test'
+    publishStatus: 'published' // Options: 'published', 'unpublished', 'test'
 };
