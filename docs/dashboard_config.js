@@ -7,8 +7,8 @@
 window.DASHBOARD_CONFIG = {
     name: 'test_dashboard5',
     githubUsername: 'jonschull',
-    githubRepo: 'test_dashboard5',
-    githubPagesUrl: 'https://jonschull.github.io/test_dashboard5/',
-    githubStatusUrl: 'https://github.com/jonschull/test_dashboard5/actions',
-    publishStatus: 'unpublished' // Options: 'published', 'unpublished', 'test'
+    githubRepo: 'SidebarDashboard',
+    githubPagesUrl: 'https://jonschull.github.io/SidebarDashboard/test_dashboard5/',
+    githubStatusUrl: 'https://github.com/jonschull/SidebarDashboard/actions',
+    publishStatus: 'published' // Options: 'published', 'unpublished', 'test'
 };
