@@ -5,10 +5,10 @@
 
 // Global dashboard configuration object
 window.DASHBOARD_CONFIG = {
-    name: 'test_new_dashboard',
+    name: 'test_dashboard5',
     githubUsername: 'jonschull',
-    githubRepo: 'test_new_dashboard',
-    githubPagesUrl: 'https://jonschull.github.io/test_new_dashboard/',
-    githubStatusUrl: 'https://github.com/jonschull/test_new_dashboard/actions',
+    githubRepo: 'test_dashboard5',
+    githubPagesUrl: 'https://jonschull.github.io/test_dashboard5/',
+    githubStatusUrl: 'https://github.com/jonschull/test_dashboard5/actions',
     publishStatus: 'unpublished' // Options: 'published', 'unpublished', 'test'
 };
