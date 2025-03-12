@@ -9,5 +9,6 @@ window.DASHBOARD_CONFIG = {
     githubUsername: 'jonschull',
     githubRepo: 'SidebarDashboard',
     githubPagesUrl: 'https://jonschull.github.io/SidebarDashboard/cleanerArchitecture/',
-    publishStatus: 'unpublished' // Options: 'published', 'unpublished', 'test'
+    githubStatusUrl: 'https://github.com/jonschull/SidebarDashboard/actions',
+    publishStatus: 'published' // Options: 'published', 'unpublished', 'test'
 };
