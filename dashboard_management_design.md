@@ -2,144 +2,76 @@
 
 ## Overview
 
-This document outlines a design for managing multiple dashboards within a single SidebarDashboard project folder, allowing users to easily switch between different document sets without duplicating the entire project structure.
+This document outlines a simple approach for managing multiple dashboards within a single SidebarDashboard project folder using symbolic links. This design allows users to easily switch between different document sets without duplicating the entire project structure or modifying the server.
 
-## User Scenarios
+## Core Design: Symbolic Link Approach
 
-### Scenario 1: Content Creator with Multiple Projects
-A writer maintains several distinct projects (e.g., a technical documentation site, a personal blog, and a project portfolio). They want to use SidebarDashboard for all projects but need to easily switch between them without managing multiple installations.
-
-### Scenario 2: Team Member Working on Multiple Dashboards
-A team member contributes to several dashboards (e.g., department documentation, project documentation, and training materials). They need to switch between these dashboards during their workday without changing directories or workspaces.
-
-### Scenario 3: Developer Maintaining Multiple Client Dashboards
-A developer maintains dashboards for multiple clients. Each dashboard has its own content, structure, and GitHub repository, but the developer wants to use the same tooling and workflow for all of them.
-
-## Implementation Considerations
-
-### Core Principles
+### Key Principles
 - Maintain a single codebase/installation
-- Keep dashboard content sets separate and swappable
-- Preserve the existing Author/Development mode distinction
-- Follow our key principles: trust working solutions, avoid over-engineering, focus on clean implementation
+- Use symbolic links to swap document sets
+- Keep the server configuration unchanged
+- Ensure publishing targets the correct GitHub repository
 
-## Proposed Solution: Dashboard Profiles
+### Implementation
 
-### Design Overview
+1. **Directory Structure**
+   ```
+   SidebarDashboard/
+   ├── working-version/
+   │   ├── docs/ -> ../dashboard_content/dashboard1/  (symbolic link)
+   │   └── ...
+   ├── dashboard_content/
+   │   ├── dashboard1/
+   │   │   ├── index.html
+   │   │   ├── sidebar.md
+   │   │   └── ...
+   │   ├── dashboard2/
+   │   │   ├── index.html
+   │   │   ├── sidebar.md
+   │   │   └── ...
+   │   └── ...
+   ├── dashboard_config/
+   │   ├── dashboard1.json  (contains GitHub repo info)
+   │   ├── dashboard2.json
+   │   └── ...
+   └── ...
+   ```
 
-1. **Dashboard Profiles System**
-   - Each dashboard is a "profile" with its own content directory
-   - Profiles are stored in a `dashboards/` directory at the project root
-   - Each profile contains:
-     - `docs/` - The content displayed in the dashboard
-     - `metadata.json` - Configuration, GitHub repo info, and other settings
-     - `sidebar.md` - The sidebar content specific to this dashboard
+2. **Dashboard Switching**
+   - A simple script removes the existing symbolic link
+   - Creates a new symbolic link pointing to the selected dashboard directory
+   - Updates a config file to track the active dashboard
+   - Server continues to serve from `working-version/docs/` as it always has
 
-2. **Profile Selection Mechanism**
-   - Add a dropdown menu to the top of the sidebar
-   - Store the active profile in a configuration file
-   - Provide a simple UI for creating new profiles
+3. **Publishing to Correct GitHub Pages**
+   - Each dashboard has a configuration file with GitHub repository details
+   - When publishing, the system reads the config for the active dashboard
+   - Git commands use the correct repository information for the current dashboard
+   - Ensures changes are pushed to the appropriate GitHub Pages site
 
-3. **Server Enhancements**
-   - Modify the server to serve content from the active profile's directory
-   - Add API endpoints for profile management (list, switch, create, etc.)
+## Implementation Plan
 
-## User Flow Diagram
+### Phase 1: Test Implementation
+- Create test directories with sample content
+- Implement symbolic link switching
+- Verify server correctly serves content through the symbolic link
 
-```
-┌─────────────────────┐
-│                     │
-│  Launch Dashboard   │
-│                     │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐     ┌─────────────────────┐
-│                     │     │                     │
-│  Select Dashboard   │────▶│  Switch Content     │
-│  from Dropdown      │     │  Directory          │
-│                     │     │                     │
-└─────────────────────┘     └──────────┬──────────┘
-                                       │
-                                       ▼
-┌─────────────────────┐     ┌─────────────────────┐
-│                     │     │                     │
-│  Edit Content       │◀────│  Reload Dashboard   │
-│  (Author Mode)      │     │  with New Content   │
-│                     │     │                     │
-└─────────────────────┘     └─────────────────────┘
-           │
-           ▼
-┌─────────────────────┐     ┌─────────────────────┐
-│                     │     │                     │
-│  Publish Dashboard  │────▶│  Push to Correct    │
-│                     │     │  GitHub Repository  │
-│                     │     │                     │
-└─────────────────────┘     └─────────────────────┘
-```
+### Phase 2: Dashboard Configuration
+- Add configuration files for each dashboard
+- Modify publish script to read active dashboard config
+- Ensure git operations target the correct repository
 
-## Technical Implementation
+### Phase 3: User Interface
+- Add simple dropdown to select dashboards
+- Create dashboard management UI (create/rename/delete)
+- Implement dashboard switching from the UI
 
-### 1. Directory Structure
+## Advantages of This Approach
 
-```
-SidebarDashboard/
-├── working-version/
-│   ├── http_server_nocache.py
-│   └── ...
-├── dashboards/
-│   ├── default/
-│   │   ├── docs/
-│   │   │   ├── index.html
-│   │   │   └── ...
-│   │   ├── sidebar.md
-│   │   └── metadata.json
-│   ├── dashboard2/
-│   │   ├── docs/
-│   │   │   └── ...
-│   │   ├── sidebar.md
-│   │   └── metadata.json
-│   └── ...
-├── active_dashboard.json
-└── ...
-```
+1. **Simplicity**: No server modifications required
+2. **Reliability**: Uses standard OS features (symbolic links)
+3. **Compatibility**: Works with existing Author/Development modes
+4. **Flexibility**: Each dashboard can have its own GitHub repository
+5. **Minimal Changes**: Preserves the current workflow and functionality
 
-### 2. Dashboard Switching Logic
-
-1. User selects a dashboard from the dropdown
-2. Client-side JavaScript sends a request to the server
-3. Server updates `active_dashboard.json`
-4. Server redirects to the dashboard page, now serving from the new content directory
-5. Sidebar displays the content from the selected dashboard's `sidebar.md`
-
-### 3. Publishing Logic
-
-1. User clicks "Publish" button
-2. System reads the GitHub repository information from the active dashboard's `metadata.json`
-3. Git commands are executed to push changes to the correct repository
-4. Confirmation message shows the specific GitHub Pages URL for that dashboard
-
-## Implementation Phases
-
-### Phase 1: Basic Profile Support
-- Create the `dashboards/` directory structure
-- Modify the server to read from the active dashboard
-- Implement a simple profile switcher in the UI
-
-### Phase 2: Profile Management
-- Add UI for creating new dashboard profiles
-- Implement dashboard metadata editing
-- Add dashboard deletion/renaming capabilities
-
-### Phase 3: Enhanced Publishing
-- Update the publishing system to handle multiple GitHub repositories
-- Add repository management features
-- Implement dashboard-specific settings
-
-## Compatibility Considerations
-
-- Existing content will be migrated to the `dashboards/default/` directory
-- Current workflows (Author Mode, Development Mode) remain unchanged
-- Server modifications will be minimal and focused on the content source
-
-This design maintains the simplicity of the current system while adding the flexibility to manage multiple dashboards from a single installation.
+This design follows our key principles: trust working solutions, avoid over-engineering, focus on clean implementation, and use a simple testing approach.
