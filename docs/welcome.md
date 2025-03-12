@@ -1,4 +1,4 @@
-# Welcome to test_dashboard5
+# Welcome to test_new_dashboard
 
 This is your new dashboard. You can:
 
