@@ -247,31 +247,41 @@ function publishToGitHub() {
     const dashboardName = window.DASHBOARD_CONFIG.name;
     const githubPagesUrl = window.DASHBOARD_CONFIG.githubPagesUrl;
     
+    // Add timestamp to prevent caching
+    const timestamp = new Date().getTime();
+    
     // Use a direct API endpoint for publishing to avoid browser caching issues
-    fetch(`/api/publish/${dashboardName}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(result => {
-            // Display the output from the publish process
-            updateOutput(result.output);
-            
-            // Check if publishing was successful
-            if (result.success) {
-                updateOutput('\nDashboard published successfully!', false);
-                updateOutput(`\nView at: ${githubPagesUrl}`, false);
-            } else if (result.error) {
-                updateOutput(`\nError: ${result.error}`, true);
-            }
-        })
-        .catch(error => {
-            updateOutput('\nError: Failed to publish dashboard', true);
-            updateOutput('\nMake sure the server is running with: ./start_server.sh', true);
-            console.error('Publish error:', error);
-        });
+    fetch(`/api/publish/${dashboardName}?t=${timestamp}`, {
+        method: 'GET',
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(result => {
+        // Display the output from the publish process
+        updateOutput(result.output);
+        
+        // Check if publishing was successful
+        if (result.success) {
+            updateOutput('\nDashboard published successfully!', false);
+            updateOutput(`\nView at: ${githubPagesUrl}`, false);
+        } else if (result.error) {
+            updateOutput(`\nError: ${result.error}`, true);
+        }
+    })
+    .catch(error => {
+        updateOutput('\nError: Failed to publish dashboard', true);
+        updateOutput('\nMake sure the server is running with: ./start_server.sh', true);
+        console.error('Publish error:', error);
+    });
 }
 
 // Initialize when DOM is ready
