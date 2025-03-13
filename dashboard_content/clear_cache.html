@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Cache and Redirect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .dashboard-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .dashboard-button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .dashboard-button:hover {
+            background-color: #2980b9;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>SidebarDashboard Cache Clearer</h1>
+    <p>This page will clear your browser cache for the SidebarDashboard and redirect you to the selected dashboard.</p>
+    
+    <div class="dashboard-list" id="dashboardList">
+        <!-- Dashboard buttons will be added here dynamically -->
+    </div>
+    
+    <div class="info">
+        <h3>Why is this needed?</h3>
+        <p>Browsers sometimes cache JavaScript files aggressively, which can cause issues when you've updated the code but the browser is still using the old version. This page forces the browser to reload all resources.</p>
+        
+        <h3>How it works</h3>
+        <p>When you click on a dashboard button:</p>
+        <ol>
+            <li>This script clears your browser cache for the SidebarDashboard domain</li>
+            <li>It then redirects you to the selected dashboard with a cache-busting parameter</li>
+            <li>This ensures you get the latest version of all JavaScript files</li>
+        </ol>
+    </div>
+
+    <script>
+        // List of available dashboards
+        const dashboards = [
+            'cleanerArchitecture',
+            'default',
+            'publish_test',
+            'symlink_test',
+            'test_dashboard5',
+            'test_new_dashboard'
+        ];
+        
+        // Create dashboard buttons
+        const dashboardList = document.getElementById('dashboardList');
+        dashboards.forEach(dashboard => {
+            const button = document.createElement('a');
+            button.href = '#';
+            button.className = 'dashboard-button';
+            button.textContent = dashboard;
+            button.onclick = function(e) {
+                e.preventDefault();
+                clearCacheAndRedirect(dashboard);
+            };
+            dashboardList.appendChild(button);
+        });
+        
+        // Function to clear cache and redirect
+        function clearCacheAndRedirect(dashboard) {
+            // Clear application cache if available
+            if (window.applicationCache) {
+                window.applicationCache.addEventListener('updateready', function() {
+                    window.applicationCache.swapCache();
+                });
+                try {
+                    window.applicationCache.update();
+                } catch (e) {
+                    console.error('Error updating application cache', e);
+                }
+            }
+            
+            // Add timestamp to prevent caching
+            const timestamp = new Date().getTime();
+            
+            // Redirect to the dashboard with cache-busting parameter
+            window.location.href = `/${dashboard}/?nocache=${timestamp}`;
+        }
+    </script>
+</body>
+</html>

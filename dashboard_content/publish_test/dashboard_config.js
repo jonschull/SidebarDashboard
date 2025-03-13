@@ -5,10 +5,10 @@
 
 // Global dashboard configuration object
 window.DASHBOARD_CONFIG = {
-    name: 'test_dashboard5',
+    name: 'publish_test',
     githubUsername: 'jonschull',
     githubRepo: 'SidebarDashboard',
-    githubPagesUrl: 'https://jonschull.github.io/SidebarDashboard/test_dashboard5/',
+    githubPagesUrl: 'https://jonschull.github.io/SidebarDashboard/publish_test/',
     githubStatusUrl: 'https://github.com/jonschull/SidebarDashboard/actions',
-    publishStatus: 'published' // Options: 'published', 'unpublished', 'test'
+    publishStatus: 'unpublished' // Options: 'published', 'unpublished', 'test'
 };

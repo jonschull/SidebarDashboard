@@ -5,13 +5,7 @@
  * 1. Renders markdown sidebar
  * 2. Opens all links in positioned windows
  * 3. Renders markdown files directly
- * 4. Auto-refreshes sidebar content
- * 5. Provides one-click publishing to GitHub Pages
- * 
- * Dependencies:
- * - marked.js: For Markdown rendering
- * 
- * @module viewer
+ * 4. Provides one-click publishing to GitHub Pages
  */
 
 // Configure marked for secure rendering
@@ -28,31 +22,25 @@ let lastSidebarModified = 0;
 let currentContentFile = 'welcome.md';
 let lastContentModified = 0;
 
-// GitHub Pages URL for this repository - use configuration if available
+// Get dashboard configuration
 const githubUsername = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubUsername : 'jonschull';
 const githubRepo = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubRepo : 'SidebarDashboard';
 const githubPagesUrl = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubPagesUrl : `https://${githubUsername}.github.io/${githubRepo}/`;
 const githubStatusUrl = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.githubStatusUrl : `https://github.com/${githubUsername}/${githubRepo}/actions`;
 const publishStatus = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.publishStatus : 'published';
-const isTestDashboard = window.DASHBOARD_CONFIG ? window.DASHBOARD_CONFIG.isTestDashboard : false;
-const publishingEnabled = window.DASHBOARD_CONFIG ? (window.DASHBOARD_CONFIG.publishingEnabled !== false) : true;
 
 /**
  * Initialize the dashboard
- * Loads and renders sidebar content
  */
 async function initDashboard() {
     try {
         // Load and render sidebar
         await loadSidebar();
         
-        // Check for mode and display appropriate greeting
-        await checkModeAndGreet();
+        // Load welcome content
+        await loadContent('welcome.md');
         
-        // Load welcome content in the main area
-        await loadWelcomeContent();
-        
-        // Setup auto-refresh for sidebar and content
+        // Setup auto-refresh
         setInterval(checkSidebarUpdates, 2000);
         setInterval(checkContentUpdates, 2000);
     } catch (error) {
@@ -60,42 +48,6 @@ async function initDashboard() {
         document.getElementById('sidebar').innerHTML = 
             '<div class="sidebar-title">Error</div>' +
             '<p>Failed to load sidebar content</p>';
-    }
-}
-
-/**
- * Check which mode is active and display the appropriate greeting
- */
-async function checkModeAndGreet() {
-    try {
-        // First, try to detect if we're in Author Mode by checking the window title
-        const isAuthorMode = document.title.includes('Author Mode') || 
-                            window.location.href.includes('author-mode') ||
-                            document.documentElement.style.getPropertyValue('--theme-color') === '#4CAF50';
-                            
-        // If we can't determine from title, check if we're in Development Mode
-        const isDevMode = document.title.includes('Development Mode') || 
-                         window.location.href.includes('development-mode') ||
-                         document.documentElement.style.getPropertyValue('--theme-color') === '#2196F3';
-        
-        // Set the greeting file based on detected mode
-        let greetingFile = 'welcome.md'; // Default
-        
-        if (isAuthorMode) {
-            greetingFile = 'author_greeting.md';
-            console.log('Author Mode detected, loading author greeting');
-        } else if (isDevMode) {
-            greetingFile = 'dev_greeting.md';
-            console.log('Development Mode detected, loading dev greeting');
-        }
-        
-        // Load the appropriate greeting
-        await loadContent(greetingFile);
-        
-    } catch (error) {
-        console.error('Failed to check mode and greet:', error);
-        // Fall back to loading welcome content
-        await loadWelcomeContent();
     }
 }
 
@@ -112,7 +64,7 @@ async function loadSidebar() {
             throw new Error(`Failed to load sidebar: ${response.status} ${response.statusText}`);
         }
         
-        // Get last modified time from headers if available
+        // Get last modified time
         const lastModified = response.headers.get('Last-Modified');
         if (lastModified) {
             lastSidebarModified = new Date(lastModified).getTime();
@@ -129,38 +81,21 @@ async function loadSidebar() {
             .replace(/<h2>(.*?)<\/h2>/g, '<div class="section-title">$1</div>');
         
         // Add publish button at the top
-        let publishButton = '';
-        if (publishingEnabled && !isTestDashboard) {
-            if (publishStatus === 'published') {
-                publishButton = `
-                    <button class="publish-button" onclick="publishToGitHub()">Update GitHub Pages</button>
-                    <div class="publish-url">URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
-                    <div class="status-link"><a href="${githubStatusUrl}" target="_blank">Check Deployment Status</a></div>
-                    <hr>
-                `;
-            } else if (publishStatus === 'unpublished') {
-                publishButton = `
-                    <button class="publish-button" onclick="publishToGitHub()">Publish to GitHub Pages</button>
-                    <div class="publish-url">Eventual URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
-                    <div class="status-link">Status: <span style="color: #dc3545;">Not yet published</span></div>
-                    <hr>
-                `;
-            } else if (publishStatus === 'pending') {
-                publishButton = `
-                    <button class="publish-button" disabled>Publishing to GitHub Pages...</button>
-                    <div class="publish-url">URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
-                    <div class="status-link"><a href="${githubStatusUrl}" target="_blank">Check Deployment Status</a></div>
-                    <hr>
-                `;
-            }
-        }
+        const publishButton = publishStatus === 'published' 
+            ? `<button class="publish-button" onclick="publishToGitHub()">Update Dashboard</button>`
+            : `<button class="publish-button" onclick="publishToGitHub()">Publish Dashboard</button>`;
+            
+        const publishInfo = `
+            <div class="publish-url">URL: <a href="${githubPagesUrl}" target="_blank">${githubPagesUrl}</a></div>
+            <div class="status-link"><a href="${githubStatusUrl}" target="_blank">Check Status</a></div>
+            <hr>
+        `;
         
-        document.getElementById('sidebar').innerHTML = publishButton + processedHtml;
+        document.getElementById('sidebar').innerHTML = publishButton + publishInfo + processedHtml;
         
         // Setup navigation
         setupNavigation();
         
-        console.log('Sidebar loaded at:', new Date().toLocaleTimeString());
     } catch (error) {
         console.error('Failed to load sidebar:', error);
         throw error;
@@ -168,31 +103,11 @@ async function loadSidebar() {
 }
 
 /**
- * Load welcome content in the main content area
- */
-async function loadWelcomeContent() {
-    try {
-        await loadContent('welcome.md');
-    } catch (error) {
-        console.error('Failed to load welcome content:', error);
-        document.getElementById('content-area').innerHTML = 
-            '<h1>Welcome to Static Dashboard</h1>' +
-            '<p>There was an error loading the welcome content. Please check the console for details.</p>';
-    }
-}
-
-/**
  * Load content in the main content area
- * @param {string} contentFile - Markdown file to load
  */
 async function loadContent(contentFile) {
     try {
         const contentArea = document.getElementById('content-area');
-        
-        // Show loading indicator
-        contentArea.innerHTML = `<p>Loading ${contentFile}...</p>`;
-        
-        // Set current content file
         currentContentFile = contentFile;
         
         // Add cache-busting parameter
@@ -203,7 +118,7 @@ async function loadContent(contentFile) {
             throw new Error(`Failed to load content: ${response.status} ${response.statusText}`);
         }
         
-        // Get last modified time from headers if available
+        // Get last modified time
         const lastModified = response.headers.get('Last-Modified');
         if (lastModified) {
             lastContentModified = new Date(lastModified).getTime();
@@ -211,37 +126,25 @@ async function loadContent(contentFile) {
             lastContentModified = timestamp;
         }
         
-        const content = await response.text();
-        contentArea.innerHTML = marked.parse(content);
+        const markdown = await response.text();
+        contentArea.innerHTML = marked.parse(markdown);
         
-        console.log(`Content ${contentFile} loaded`);
     } catch (error) {
-        console.error(`Failed to load content ${contentFile}:`, error);
-        throw error;
+        console.error(`Failed to load ${contentFile}:`, error);
+        contentArea.innerHTML = `<h1>Error</h1><p>Failed to load ${contentFile}</p>`;
     }
 }
 
 /**
- * Check if sidebar.md has been updated and reload if necessary
+ * Check if sidebar needs updating
  */
 async function checkSidebarUpdates() {
     try {
-        // Add cache-busting parameter
-        const timestamp = new Date().getTime();
-        const response = await fetch('sidebar.md?t=' + timestamp, { method: 'HEAD' });
-        
-        if (!response.ok) {
-            return;
-        }
-        
-        // Get last modified time from headers if available
+        const response = await fetch('sidebar.md', { method: 'HEAD' });
         const lastModified = response.headers.get('Last-Modified');
         if (lastModified) {
             const modifiedTime = new Date(lastModified).getTime();
-            
-            // If sidebar has been modified, reload it
             if (modifiedTime > lastSidebarModified) {
-                console.log('Sidebar updated, reloading...');
                 await loadSidebar();
             }
         }
@@ -251,42 +154,16 @@ async function checkSidebarUpdates() {
 }
 
 /**
- * Check if the current content file has been updated and reload if necessary
+ * Check if content needs updating
  */
 async function checkContentUpdates() {
-    if (!currentContentFile) return;
-    
     try {
-        // Add cache-busting parameter
-        const timestamp = new Date().getTime();
-        const response = await fetch(currentContentFile + '?t=' + timestamp, { method: 'HEAD' });
-        
-        if (!response.ok) {
-            return;
-        }
-        
-        // Get last modified time from headers if available
+        const response = await fetch(currentContentFile, { method: 'HEAD' });
         const lastModified = response.headers.get('Last-Modified');
         if (lastModified) {
             const modifiedTime = new Date(lastModified).getTime();
-            
-            // If content has been modified, reload it
             if (modifiedTime > lastContentModified) {
-                console.log('Content updated, reloading...');
-                
-                // Reload based on file type
-                if (currentContentFile === 'welcome.md') {
-                    await loadWelcomeContent();
-                } else if (currentContentFile.endsWith('.md')) {
-                    // For other markdown files, reload the content
-                    const contentArea = document.getElementById('content-area');
-                    const response = await fetch(currentContentFile + '?t=' + timestamp);
-                    if (response.ok) {
-                        const content = await response.text();
-                        contentArea.innerHTML = marked.parse(content);
-                        lastContentModified = modifiedTime;
-                    }
-                }
+                await loadContent(currentContentFile);
             }
         }
     } catch (error) {
@@ -295,243 +172,47 @@ async function checkContentUpdates() {
 }
 
 /**
- * Setup click handlers for navigation
- * All links open in positioned windows
+ * Setup navigation click handlers
  */
 function setupNavigation() {
-    document.querySelectorAll('#sidebar a').forEach(link => {
-        link.addEventListener('click', e => {
+    const links = document.querySelectorAll('#sidebar a');
+    links.forEach(link => {
+        link.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            const url = link.href;
-            const title = link.textContent.trim();
-            
-            // Check if it's a markdown file
-            if (url.endsWith('.md')) {
-                openMarkdownInWindow(url, title);
+            const href = link.getAttribute('href');
+            if (href.endsWith('.md')) {
+                loadContent(href);
             } else {
-                openWindow(url, title);
+                window.location.href = href;
             }
         });
     });
 }
 
 /**
- * Open markdown file in a positioned window with rendering
- * @param {string} url - URL to the markdown file
- * @param {string} title - Window title
- */
-function openMarkdownInWindow(url, title) {
-    // Update current content file for auto-refresh
-    currentContentFile = url;
-    
-    // Create a new window
-    const width = 800;
-    const height = 600;
-    const left = window.screenX + 320; // Position to the right of sidebar
-    const top = window.screenY;
-    
-    const newWindow = window.open('', title, `width=${width},height=${height},left=${left},top=${top}`);
-    
-    if (!newWindow) {
-        alert('Popup blocked! Please allow popups for this site.');
-        return;
-    }
-    
-    // Set window properties
-    newWindow.document.title = title;
-    
-    // Show loading indicator
-    newWindow.document.body.innerHTML = '<p>Loading...</p>';
-    
-    // Load and render markdown content
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Failed to load ${url}: ${response.status} ${response.statusText}`);
-            }
-            
-            // Get last modified time from headers if available
-            const lastModified = response.headers.get('Last-Modified');
-            if (lastModified) {
-                lastContentModified = new Date(lastModified).getTime();
-            }
-            
-            return response.text();
-        })
-        .then(markdown => {
-            // Create HTML content for the new window
-            const htmlContent = `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-                <meta http-equiv="Pragma" content="no-cache">
-                <meta http-equiv="Expires" content="0">
-                <title>${title}</title>
-                <style>
-                    body {
-                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                        line-height: 1.6;
-                        color: #333;
-                        max-width: 800px;
-                        margin: 0 auto;
-                        padding: 20px;
-                    }
-                    pre {
-                        background: #f8f9fa;
-                        padding: 10px;
-                        border-radius: 5px;
-                        overflow-x: auto;
-                    }
-                    code {
-                        background: #f8f9fa;
-                        padding: 2px 5px;
-                        border-radius: 3px;
-                        font-family: monospace;
-                    }
-                    img {
-                        max-width: 100%;
-                        height: auto;
-                    }
-                    blockquote {
-                        border-left: 4px solid #ddd;
-                        padding-left: 10px;
-                        color: #666;
-                        margin-left: 0;
-                    }
-                    h1, h2, h3 {
-                        color: #2c3e50;
-                    }
-                    a {
-                        color: #007bff;
-                        text-decoration: none;
-                    }
-                    a:hover {
-                        text-decoration: underline;
-                    }
-                    .filename {
-                        color: #6c757d;
-                        font-size: 0.9em;
-                        margin-bottom: 20px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="filename">File: ${url.split('/').pop()}</div>
-                <div id="content"></div>
-                <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-                <script>
-                    // Configure marked
-                    marked.setOptions({
-                        headerIds: false,
-                        mangle: false,
-                        breaks: true
-                    });
-                    
-                    // Render markdown content
-                    const markdownContent = ${JSON.stringify(markdown)};
-                    document.getElementById('content').innerHTML = marked.parse(markdownContent);
-                    
-                    // Handle image errors
-                    document.querySelectorAll('img').forEach(img => {
-                        img.onerror = function() {
-                            this.onerror = null;
-                            this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3Cpath fill="%23ccc" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" /%3E%3C/svg%3E';
-                            this.style.background = '#f8f9fa';
-                            this.style.padding = '10px';
-                        };
-                    });
-                </script>
-            </body>
-            </html>
-            `;
-            
-            // Write content to the new window
-            newWindow.document.open();
-            newWindow.document.write(htmlContent);
-            newWindow.document.close();
-        })
-        .catch(error => {
-            console.error('Failed to open markdown:', error);
-            alert(`Failed to open markdown file: ${error.message}`);
-        });
-}
-
-/**
- * Open a URL in a positioned window
- * @param {string} url - URL to open
- * @param {string} title - Window title
- */
-function openWindow(url, title) {
-    try {
-        // Calculate window size and position
-        const sidebar = document.getElementById('sidebar');
-        const sidebarWidth = sidebar.offsetWidth;
-        const windowWidth = window.screen.width - sidebarWidth - 50;
-        const windowHeight = window.screen.height - 100;
-        
-        // Position window next to sidebar
-        const features = [
-            `width=${windowWidth}`,
-            `height=${windowHeight}`,
-            `left=${sidebarWidth + 25}`,
-            `top=50`,
-            'menubar=yes',
-            'toolbar=yes',
-            'location=yes',
-            'status=yes',
-            'resizable=yes'
-        ].join(',');
-        
-        // Open URL in new window
-        window.open(url, title, features);
-    } catch (error) {
-        console.error('Failed to open window:', error);
-        alert(`Failed to open window: ${error.message}`);
-    }
-}
-
-/**
- * Publish changes to GitHub Pages
- * Executes a git add, commit, and push operation
- * 
- * IMPORTANT: This is separate from regular code updates.
- * Only this publish function will update the GitHub Pages site.
+ * Publish dashboard to GitHub Pages
  */
 function publishToGitHub() {
-    // Confirmation message based on publish status
-    let confirmMessage = 'Are you sure you want to publish to GitHub Pages?\n\nThis will copy files from working-version/docs to docs and update the live site.';
+    // Confirmation message
+    const publishStatus = window.DASHBOARD_CONFIG.publishStatus;
+    const confirmMessage = publishStatus === 'unpublished' 
+        ? 'This will be the FIRST PUBLICATION of this dashboard to GitHub Pages.\n\nAre you sure you want to proceed?'
+        : 'Are you sure you want to update this dashboard on GitHub Pages?';
     
-    if (publishStatus === 'unpublished') {
-        confirmMessage = 'This will be the FIRST PUBLICATION of this dashboard to GitHub Pages.\n\nAre you sure you want to proceed?';
-    } else if (publishStatus === 'published') {
-        confirmMessage = 'Are you sure you want to update this dashboard on GitHub Pages?\n\nThis will update the live site with your current changes.';
-    }
-    
-    // Show confirmation dialog
     if (!confirm(confirmMessage)) {
         return;
     }
     
-    // Create a popup window to show the publishing process
-    const publishWindow = window.open('', 'Publishing to GitHub Pages', 'width=600,height=400,resizable=yes');
+    // Create publish window
+    const publishWindow = window.open('', 'Publishing to GitHub Pages', 'width=600,height=400');
     publishWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
             <title>Publishing to GitHub Pages</title>
             <style>
-                body {
-                    font-family: monospace;
-                    padding: 20px;
-                    background: #f8f9fa;
-                }
-                h2 {
-                    color: #2c3e50;
-                }
+                body { font-family: monospace; padding: 20px; background: #f8f9fa; }
+                h2 { color: #2c3e50; }
                 #output {
                     background: #000;
                     color: #fff;
@@ -541,127 +222,66 @@ function publishToGitHub() {
                     overflow-y: auto;
                     white-space: pre-wrap;
                 }
-                .success {
-                    color: #28a745;
-                    font-weight: bold;
-                }
-                .error {
-                    color: #dc3545;
-                    font-weight: bold;
-                }
-                .status-button {
-                    display: inline-block;
-                    margin-top: 15px;
-                    padding: 8px 16px;
-                    background-color: #6c757d;
-                    color: white;
-                    text-decoration: none;
-                    border-radius: 4px;
-                    font-weight: bold;
-                }
-                .status-button:hover {
-                    background-color: #5a6268;
-                }
-                .important-note {
-                    margin-top: 15px;
-                    padding: 10px;
-                    background-color: #f8d7da;
-                    border: 1px solid #f5c6cb;
-                    border-radius: 4px;
-                    color: #721c24;
-                }
+                .success { color: #28a745; }
+                .error { color: #dc3545; }
             </style>
         </head>
         <body>
-            <h2>${publishStatus === 'unpublished' ? 'First Publication to GitHub Pages' : 'Publishing to GitHub Pages'}</h2>
-            <div id="output">Starting publish process...</div>
+            <h2>Publishing to GitHub Pages</h2>
+            <div id="output">Running publish process...</div>
         </body>
         </html>
     `);
     
-    // Function to update the output in the popup window
-    const updateOutput = (message, isError = false, isSuccess = false) => {
-        const outputDiv = publishWindow.document.getElementById('output');
-        const messageClass = isError ? 'error' : (isSuccess ? 'success' : '');
-        
-        if (messageClass) {
-            outputDiv.innerHTML += `<div class="${messageClass}">${message}</div>`;
-        } else {
-            outputDiv.innerHTML += message + '\n';
-        }
-        
-        // Scroll to bottom
-        outputDiv.scrollTop = outputDiv.scrollHeight;
+    // Update output
+    const updateOutput = (text, isError = false) => {
+        const output = publishWindow.document.getElementById('output');
+        const div = publishWindow.document.createElement('div');
+        div.textContent = text;
+        if (isError) div.className = 'error';
+        output.appendChild(div);
+        output.scrollTop = output.scrollHeight;
     };
     
-    // Call the server endpoint to trigger the publish script
-    updateOutput('Connecting to server...');
+    // Run publish script using the new approach
+    const dashboardName = window.DASHBOARD_CONFIG.name;
+    const githubPagesUrl = window.DASHBOARD_CONFIG.githubPagesUrl;
     
-    fetch('/publish')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Show the full output
-                updateOutput(data.output);
-                
-                if (publishStatus === 'unpublished') {
-                    updateOutput('First publication complete! Your dashboard is now live at:', false, true);
-                } else {
-                    updateOutput('Publishing complete! Your changes are now live at:', false, true);
-                }
-                
-                updateOutput(githubPagesUrl, false, true);
-                
-                // Add a button to check deployment status
-                const body = publishWindow.document.querySelector('body');
-                const statusButton = publishWindow.document.createElement('a');
-                statusButton.href = githubStatusUrl;
-                statusButton.target = '_blank';
-                statusButton.className = 'status-button';
-                statusButton.textContent = 'Check Deployment Status';
-                body.appendChild(statusButton);
-                
-                // Add note about deployment time
-                updateOutput('\nNote: It may take a few minutes for changes to appear on GitHub Pages.', false, true);
-                
-                // Update publish status if it was unpublished
-                if (publishStatus === 'unpublished') {
-                    // Update the publish status in memory
-                    publishStatus = 'published';
-                    
-                    // Add a button to refresh the dashboard
-                    const refreshButton = publishWindow.document.createElement('button');
-                    refreshButton.textContent = 'Refresh Dashboard';
-                    refreshButton.style.marginLeft = '10px';
-                    refreshButton.style.padding = '8px 16px';
-                    refreshButton.style.backgroundColor = '#28a745';
-                    refreshButton.style.color = 'white';
-                    refreshButton.style.border = 'none';
-                    refreshButton.style.borderRadius = '4px';
-                    refreshButton.style.fontWeight = 'bold';
-                    refreshButton.style.cursor = 'pointer';
-                    
-                    refreshButton.onclick = function() {
-                        // Refresh the main window
-                        window.location.reload();
-                        // Close the publish window
-                        publishWindow.close();
-                    };
-                    
-                    publishWindow.document.querySelector('body').appendChild(refreshButton);
-                    
-                    updateOutput('\nClick "Refresh Dashboard" to update the dashboard status.', false, true);
-                }
-            } else {
-                // Show error
-                updateOutput('Error during publishing:', true);
-                updateOutput(data.error || 'Unknown error', true);
-            }
-        })
-        .catch(error => {
-            updateOutput('Failed to connect to server:', true);
-            updateOutput(error.message, true);
-        });
+    // Add timestamp to prevent caching
+    const timestamp = new Date().getTime();
+    
+    // Use a direct API endpoint for publishing to avoid browser caching issues
+    fetch(`/api/publish/${dashboardName}?t=${timestamp}`, {
+        method: 'GET',
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(result => {
+        // Display the output from the publish process
+        updateOutput(result.output);
+        
+        // Check if publishing was successful
+        if (result.success) {
+            updateOutput('\nDashboard published successfully!', false);
+            updateOutput(`\nView at: ${githubPagesUrl}`, false);
+        } else if (result.error) {
+            updateOutput(`\nError: ${result.error}`, true);
+        }
+    })
+    .catch(error => {
+        updateOutput('\nError: Failed to publish dashboard', true);
+        updateOutput('\nMake sure the server is running with: ./start_server.sh', true);
+        console.error('Publish error:', error);
+    });
 }
 
 // Initialize when DOM is ready
